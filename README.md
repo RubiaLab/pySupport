@@ -51,13 +51,13 @@ The ```Coordinates only``` format style will only print **file name** and **cart
 
 ## Requirements
 
-The code was tested using Python Version 3.13.1. For the generation of Excel output files, the library openpyxl with version 3.1.5 is necessary. All requirements are listed in ```requirements.txt```.
+The code was tested using Python 3.13.1. For the generation of Excel output files, the library openpyxl 3.1.5 is necessary. All requirements are listed in ```requirements.txt```.
 
 ## Contact
 
 Alexander Krappe – a.r.krappe@gmail.com
 
-Project link – [https://github.com/RubiaLab/Orca2SI](https://github.com/RubiaLab/Orca2SI)
+Project link – [https://github.com/RubiaLab/pySupport](https://github.com/RubiaLab/pySupport)
 
 ## License
 
