@@ -5,9 +5,8 @@ linecolor = '000000'
 font_style = 'Arial'
 font_size = 10
 
-def generate_xlsx(si_style, file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords):
+def generate_xlsx(si_style, SI_workbook, file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords):
 	
-	SI_workbook = openpyxl.Workbook()
 	if si_style == 4:
 		print('Generating Full .xlsx file ...')
 		# Generate Excel file and format cells
@@ -365,9 +364,3 @@ def generate_xlsx(si_style, file, basis_set, charge, multiplicity, total_energy,
 		for cellNum7 in cellRange7:
 			for cellNum8 in cellNum7:
 				cellNum8.border = Border(bottom = mediumBorder)
-
-	#Remove first empty worksheet
-	del SI_workbook['Sheet']
-	# Save xlsx file
-	SI_workbook.save('SI_output.xlsx')
-	
