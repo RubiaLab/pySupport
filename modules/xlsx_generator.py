@@ -370,4 +370,4 @@ def generate_xlsx(si_style, file, basis_set, charge, multiplicity, total_energy,
 	del SI_workbook['Sheet']
 	# Save xlsx file
 	SI_workbook.save('SI_output.xlsx')
-	print(f'Files for Supporting Information saved as "SI_output.xlsx" in the same directory.')
+	

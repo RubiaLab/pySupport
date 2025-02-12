@@ -79,6 +79,7 @@ def main():
 			print(f'File "{filename.strip()[:-3]}txt" for Supporting Information saved in the same directory.')
 		elif si_style in [4, 5, 6]:
 			xlsx.generate_xlsx(si_style, file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords)
+			print(f'Files for Supporting Information saved as "SI_output.xlsx" in the same directory.')
 		elif si_style in [7, 8, 9]:
 			tex.generate_tex(si_style, file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords)
 			print(f'File "{file.strip()[:-3]}tex" for Supporting Information saved in the same directory.')

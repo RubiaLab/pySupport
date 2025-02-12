@@ -112,8 +112,9 @@ def analyzer(filename):
 	print('Charge: ', charge)
 	print('Multiplicity: ', multiplicity)
 	print(f'Total energy: {total_energy} Hartree')
-	print('Frequencies: ', freqs)
-	print('Imaginary frequencies: ', imaginary_freqs)
+	if jobtype == 'freq' or jobtype == 'opt+freq':
+		print('Frequencies: ', freqs)
+		print('Imaginary frequencies: ', imaginary_freqs)
 	print(f'Coords: {coords}')
 
 	return file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords

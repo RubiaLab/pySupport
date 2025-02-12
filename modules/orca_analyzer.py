@@ -18,6 +18,8 @@ def analyzer(filename):
 
 	
 	coords = []
+	freqs = []
+	imaginary_freqs = []
 
 	#Determine input section
 	for i in range(len(calc_output)):
@@ -51,7 +53,7 @@ def analyzer(filename):
 			charge = line.split()[4]
 
 		#Determine multiplicity
-		if 'Multiplicity' in line:
+		if 'Multiplicity           Mult' in line:
 			multiplicity = line.split()[3]
 
 		#Determine total energy
@@ -80,8 +82,6 @@ def analyzer(filename):
 				break
 		freq_end = n - 2
 
-		freqs = []
-		imaginary_freqs = []
 		for freq_line in range(freq_start, freq_end):
 			if float(calc_output[freq_line].split()[1]) != 0:
 				freqs.append(calc_output[freq_line].split()[1])
@@ -93,8 +93,9 @@ def analyzer(filename):
 	print('Charge: ', charge)
 	print('Multiplicity: ', multiplicity)
 	print(f'Total energy: {total_energy} Hartree')
-	print('Frequencies: ', freqs)
-	print('Imaginary frequencies: ', imaginary_freqs)
+	if jobtype == 'freq' or jobtype == 'opt+freq':
+		print('Frequencies: ', freqs)
+		print('Imaginary frequencies: ', imaginary_freqs)
 	print(f'Coords: {coords}')
 
 	return file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords
