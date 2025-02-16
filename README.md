@@ -55,7 +55,7 @@ The code was tested using Python 3.13.1. For the generation of Excel output file
 
 ## Contact
 
-Alexander Krappe – a.r.krappe@gmail.com
+Alexander Krappe – rubialab@rubialab.de
 
 Project link – [https://github.com/RubiaLab/pySupport](https://github.com/RubiaLab/pySupport)
 
