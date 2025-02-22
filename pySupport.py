@@ -1,6 +1,6 @@
 #!/usr/bin/python
 __author__ = 'RubiaLab'
-__email__ = 'a.r.krappe@gmail.com'
+__email__ = 'rubialab@rubialab.de'
 __version__ = '1.0'
 
 def main():
