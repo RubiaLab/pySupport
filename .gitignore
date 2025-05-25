@@ -172,4 +172,5 @@ cython_debug/
 *.png
 *.jpg
 *.tex
+*.xyz
 !requirements.txt

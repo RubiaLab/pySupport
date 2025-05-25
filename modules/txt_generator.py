@@ -17,24 +17,25 @@ def generate_txt(si_style, file, basis_set, charge, multiplicity, total_energy, 
 			#si_out.write(f'Sum of electronic and thermal Energies = {freqThr}\n')
 			#si_out.write(f'Sum of electronic and thermal Enthalpies = {freqH}\n')
 			#si_out.write(f'Sum of electronic and thermal Free Energies = {freqFE}\n')
-	si_out.write('\n---------------------------------------------------\n')
-	si_out.write('                  Coordinates (Angstroems)\n')
-	si_out.write(' Atoms        X              Y              Z\n')
-	si_out.write('---------------------------------------------------\n')
+	if len(coords) > 0:		
+		si_out.write('\n---------------------------------------------------\n')
+		si_out.write('                  Coordinates (Angstroems)\n')
+		si_out.write(' Atoms        X              Y              Z\n')
+		si_out.write('---------------------------------------------------\n')
 
-	for n in range(len(coords)):
-		si_out.write(f'   {coords[n].split()[0]}')
-		if coords[n].split()[1][0] == '-':
-			si_out.write(f'      {coords[n].split()[1]}')
-		else:
-			si_out.write(f'       {coords[n].split()[1]}')
-		if coords[n].split()[2][0] == '-':
-			si_out.write(f'      {coords[n].split()[2]}')
-		else:
-			si_out.write(f'       {coords[n].split()[2]}')
-		if coords[n].split()[3][0] == '-':
-			si_out.write(f'      {coords[n].split()[3]}\n')
-		else:
-			si_out.write(f'       {coords[n].split()[3]}\n')
-	si_out.write('---------------------------------------------------\n')
+		for n in range(len(coords)):
+			si_out.write(f'   {coords[n].split()[0]}')
+			if coords[n].split()[1][0] == '-':
+				si_out.write(f'      {coords[n].split()[1]}')
+			else:
+				si_out.write(f'       {coords[n].split()[1]}')
+			if coords[n].split()[2][0] == '-':
+				si_out.write(f'      {coords[n].split()[2]}')
+			else:
+				si_out.write(f'       {coords[n].split()[2]}')
+			if coords[n].split()[3][0] == '-':
+				si_out.write(f'      {coords[n].split()[3]}\n')
+			else:
+				si_out.write(f'       {coords[n].split()[3]}\n')
+		si_out.write('---------------------------------------------------\n')
 	si_out.close()

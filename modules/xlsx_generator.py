@@ -1,3 +1,4 @@
+import sys
 import openpyxl
 from openpyxl.styles import Border, Font, Alignment, Side
 
@@ -82,114 +83,115 @@ def generate_xlsx(si_style, SI_workbook, file, basis_set, charge, multiplicity, 
 			SI_worksheet['D9'] = f'Sum of electronic and thermal Free Energies = {freqFE} Hartree'
 		'''
 
-		SI_worksheet.merge_cells('A10:A11')
-		SI_worksheet.merge_cells('B10:D10')
-		SI_worksheet.merge_cells('E10:E11')
-		SI_worksheet.merge_cells('F10:H10')
+		if len(coords) > 0:
+			SI_worksheet.merge_cells('A10:A11')
+			SI_worksheet.merge_cells('B10:D10')
+			SI_worksheet.merge_cells('E10:E11')
+			SI_worksheet.merge_cells('F10:H10')
 
-		SI_worksheet['A10'] = 'Atoms'
-		SI_worksheet['A10'].font = Font(name = font_style, size = font_size, bold = True)
-		SI_worksheet['A10'].alignment = Alignment(horizontal = 'center', vertical = 'bottom')
-		SI_worksheet['A11'].border = Border(bottom = thinBorder)
+			SI_worksheet['A10'] = 'Atoms'
+			SI_worksheet['A10'].font = Font(name = font_style, size = font_size, bold = True)
+			SI_worksheet['A10'].alignment = Alignment(horizontal = 'center', vertical = 'bottom')
+			SI_worksheet['A11'].border = Border(bottom = thinBorder)
 
-		SI_worksheet['B10'] = 'Cartesian Coordinates'
-		SI_worksheet['B10'].font = Font(name = font_style, size = font_size, bold = True)
-		SI_worksheet['B10'].alignment = Alignment(horizontal = 'center', vertical = 'center')
+			SI_worksheet['B10'] = 'Cartesian Coordinates'
+			SI_worksheet['B10'].font = Font(name = font_style, size = font_size, bold = True)
+			SI_worksheet['B10'].alignment = Alignment(horizontal = 'center', vertical = 'center')
 
-		SI_worksheet['B11'] = 'X'
-		SI_worksheet['B11'].font = Font(name = font_style, size = font_size, bold = True, italic = True)
-		SI_worksheet['B11'].alignment = Alignment(horizontal = 'center', vertical = 'center')
-		SI_worksheet['B11'].border = Border(top = dashedBorder, bottom = thinBorder)
-		SI_worksheet['C11'] = 'Y'
-		SI_worksheet['C11'].font = Font(name = font_style, size = font_size, bold = True, italic = True)
-		SI_worksheet['C11'].alignment = Alignment(horizontal = 'center', vertical = 'center')
-		SI_worksheet['C11'].border = Border(top = dashedBorder, bottom = thinBorder)
-		SI_worksheet['D11'] = 'Z'
-		SI_worksheet['D11'].font = Font(name = font_style, size = font_size, bold = True, italic = True)
-		SI_worksheet['D11'].alignment = Alignment(horizontal = 'center', vertical = 'center')
-		SI_worksheet['D11'].border = Border(top = dashedBorder, bottom = thinBorder)
+			SI_worksheet['B11'] = 'X'
+			SI_worksheet['B11'].font = Font(name = font_style, size = font_size, bold = True, italic = True)
+			SI_worksheet['B11'].alignment = Alignment(horizontal = 'center', vertical = 'center')
+			SI_worksheet['B11'].border = Border(top = dashedBorder, bottom = thinBorder)
+			SI_worksheet['C11'] = 'Y'
+			SI_worksheet['C11'].font = Font(name = font_style, size = font_size, bold = True, italic = True)
+			SI_worksheet['C11'].alignment = Alignment(horizontal = 'center', vertical = 'center')
+			SI_worksheet['C11'].border = Border(top = dashedBorder, bottom = thinBorder)
+			SI_worksheet['D11'] = 'Z'
+			SI_worksheet['D11'].font = Font(name = font_style, size = font_size, bold = True, italic = True)
+			SI_worksheet['D11'].alignment = Alignment(horizontal = 'center', vertical = 'center')
+			SI_worksheet['D11'].border = Border(top = dashedBorder, bottom = thinBorder)
 
-		SI_worksheet['E10'] = 'Atoms'
-		SI_worksheet['E10'].font = Font(name = font_style, size = font_size, bold = True)
-		SI_worksheet['E10'].alignment = Alignment(horizontal = 'center', vertical = 'bottom')
-		SI_worksheet['E11'].border = Border(bottom = thinBorder)
+			SI_worksheet['E10'] = 'Atoms'
+			SI_worksheet['E10'].font = Font(name = font_style, size = font_size, bold = True)
+			SI_worksheet['E10'].alignment = Alignment(horizontal = 'center', vertical = 'bottom')
+			SI_worksheet['E11'].border = Border(bottom = thinBorder)
 
-		SI_worksheet['F10'] = 'Cartesian Coordinates'
-		SI_worksheet['F10'].font = Font(name = font_style, size = font_size, bold = True)
-		SI_worksheet['F10'].alignment = Alignment(horizontal = 'center', vertical = 'center')
+			SI_worksheet['F10'] = 'Cartesian Coordinates'
+			SI_worksheet['F10'].font = Font(name = font_style, size = font_size, bold = True)
+			SI_worksheet['F10'].alignment = Alignment(horizontal = 'center', vertical = 'center')
 
-		SI_worksheet['F11'] = 'X'
-		SI_worksheet['F11'].font = Font(name = font_style, size = font_size, bold = True, italic = True)
-		SI_worksheet['F11'].alignment = Alignment(horizontal = 'center', vertical = 'center')
-		SI_worksheet['F11'].border = Border(top = dashedBorder, bottom = thinBorder)
-		SI_worksheet['G11'] = 'Y'
-		SI_worksheet['G11'].font = Font(name = font_style, size = font_size, bold = True, italic = True)
-		SI_worksheet['G11'].alignment = Alignment(horizontal = 'center', vertical = 'center')
-		SI_worksheet['G11'].border = Border(top = dashedBorder, bottom = thinBorder)
-		SI_worksheet['H11'] = 'Z'
-		SI_worksheet['H11'].font = Font(name = font_style, size = font_size, bold = True, italic = True)
-		SI_worksheet['H11'].alignment = Alignment(horizontal = 'center', vertical = 'center')
-		SI_worksheet['H11'].border = Border(top = dashedBorder, bottom = thinBorder)
+			SI_worksheet['F11'] = 'X'
+			SI_worksheet['F11'].font = Font(name = font_style, size = font_size, bold = True, italic = True)
+			SI_worksheet['F11'].alignment = Alignment(horizontal = 'center', vertical = 'center')
+			SI_worksheet['F11'].border = Border(top = dashedBorder, bottom = thinBorder)
+			SI_worksheet['G11'] = 'Y'
+			SI_worksheet['G11'].font = Font(name = font_style, size = font_size, bold = True, italic = True)
+			SI_worksheet['G11'].alignment = Alignment(horizontal = 'center', vertical = 'center')
+			SI_worksheet['G11'].border = Border(top = dashedBorder, bottom = thinBorder)
+			SI_worksheet['H11'] = 'Z'
+			SI_worksheet['H11'].font = Font(name = font_style, size = font_size, bold = True, italic = True)
+			SI_worksheet['H11'].alignment = Alignment(horizontal = 'center', vertical = 'center')
+			SI_worksheet['H11'].border = Border(top = dashedBorder, bottom = thinBorder)
 
-		# Fill cells with coordinates
-		excel_coords = []
-		excel_coordss = []
-
-		if len(coords) % 2 == 0:
-			excel_coordsLineNumber = int(len(coords) / 2)
-			for r in range(0, len(coords), 2):
-				excel_coords = []
-				excel_coords.append(coords[r].split()[0])
-				excel_coords.append(coords[r].split()[1])
-				excel_coords.append(coords[r].split()[2])
-				excel_coords.append(coords[r].split()[3])
-				excel_coords.append(coords[r + 1].split()[0])
-				excel_coords.append(coords[r + 1].split()[1])
-				excel_coords.append(coords[r + 1].split()[2])
-				excel_coords.append(coords[r + 1].split()[3])
-				excel_coordss.append(excel_coords)
-
-		elif len(coords) % 2 == 1:
-			excel_coordsLineNumber = int((len(coords) + 1) / 2)
-			for r in range(0, len(coords) - 1, 2):
-				excel_coords = []
-				excel_coords.append(coords[r].split()[0])
-				excel_coords.append(coords[r].split()[1])
-				excel_coords.append(coords[r].split()[2])
-				excel_coords.append(coords[r].split()[3])
-				excel_coords.append(coords[r + 1].split()[0])
-				excel_coords.append(coords[r + 1].split()[1])
-				excel_coords.append(coords[r + 1].split()[2])
-				excel_coords.append(coords[r + 1].split()[3])
-				excel_coordss.append(excel_coords)
+			# Fill cells with coordinates
 			excel_coords = []
-			excel_coords.append(coords[-1].split()[0])
-			excel_coords.append(coords[-1].split()[1])
-			excel_coords.append(coords[-1].split()[2])
-			excel_coords.append(coords[-1].split()[3])
-			excel_coordss.append(excel_coords)
+			excel_coordss = []
 
-		for line in excel_coordss:
-			SI_worksheet.append(line)
+			if len(coords) % 2 == 0:
+				excel_coordsLineNumber = int(len(coords) / 2)
+				for r in range(0, len(coords), 2):
+					excel_coords = []
+					excel_coords.append(coords[r].split()[0])
+					excel_coords.append(coords[r].split()[1])
+					excel_coords.append(coords[r].split()[2])
+					excel_coords.append(coords[r].split()[3])
+					excel_coords.append(coords[r + 1].split()[0])
+					excel_coords.append(coords[r + 1].split()[1])
+					excel_coords.append(coords[r + 1].split()[2])
+					excel_coords.append(coords[r + 1].split()[3])
+					excel_coordss.append(excel_coords)
 
-		cellRange2 = SI_worksheet['A12:H4001']
-		for cellNum in cellRange2:
-			for cellNum1 in cellNum:
-				cellNum1.font = Font(name = font_style, size = font_size)
-				cellNum1.alignment = Alignment(horizontal = 'center', vertical = 'center')
+			elif len(coords) % 2 == 1:
+				excel_coordsLineNumber = int((len(coords) + 1) / 2)
+				for r in range(0, len(coords) - 1, 2):
+					excel_coords = []
+					excel_coords.append(coords[r].split()[0])
+					excel_coords.append(coords[r].split()[1])
+					excel_coords.append(coords[r].split()[2])
+					excel_coords.append(coords[r].split()[3])
+					excel_coords.append(coords[r + 1].split()[0])
+					excel_coords.append(coords[r + 1].split()[1])
+					excel_coords.append(coords[r + 1].split()[2])
+					excel_coords.append(coords[r + 1].split()[3])
+					excel_coordss.append(excel_coords)
+				excel_coords = []
+				excel_coords.append(coords[-1].split()[0])
+				excel_coords.append(coords[-1].split()[1])
+				excel_coords.append(coords[-1].split()[2])
+				excel_coords.append(coords[-1].split()[3])
+				excel_coordss.append(excel_coords)
 
-		lastLine = excel_coordsLineNumber + 11
+			for line in excel_coordss:
+				SI_worksheet.append(line)
 
-		cellRange7 = SI_worksheet[f'A{lastLine}:H{lastLine}']
-		for cellNum7 in cellRange7:
-			for cellNum8 in cellNum7:
-				cellNum8.border = Border(bottom = mediumBorder)
-		cellRange9 = SI_worksheet[f'E10:E{lastLine}']
-		for cellNum9 in cellRange9:
-			for cellNumfont_size in cellNum9:
-				cellNumfont_size.border = Border(left = dashedBorder)
-		SI_worksheet['E11'].border = Border(left = dashedBorder, bottom = thinBorder)
-		SI_worksheet[f'E{lastLine}'].border = Border(left = dashedBorder, bottom = mediumBorder)
+			cellRange2 = SI_worksheet['A12:H4001']
+			for cellNum in cellRange2:
+				for cellNum1 in cellNum:
+					cellNum1.font = Font(name = font_style, size = font_size)
+					cellNum1.alignment = Alignment(horizontal = 'center', vertical = 'center')
+
+			lastLine = excel_coordsLineNumber + 11
+
+			cellRange7 = SI_worksheet[f'A{lastLine}:H{lastLine}']
+			for cellNum7 in cellRange7:
+				for cellNum8 in cellNum7:
+					cellNum8.border = Border(bottom = mediumBorder)
+			cellRange9 = SI_worksheet[f'E10:E{lastLine}']
+			for cellNum9 in cellRange9:
+				for cellNumfont_size in cellNum9:
+					cellNumfont_size.border = Border(left = dashedBorder)
+			SI_worksheet['E11'].border = Border(left = dashedBorder, bottom = thinBorder)
+			SI_worksheet[f'E{lastLine}'].border = Border(left = dashedBorder, bottom = mediumBorder)
 
 	elif si_style == 5:
 		print('Generating Simple .xlsx file ...')
@@ -238,57 +240,63 @@ def generate_xlsx(si_style, SI_workbook, file, basis_set, charge, multiplicity, 
 		SI_worksheet.merge_cells('A4:D4')
 		SI_worksheet['A4'] = f'Electronic Energy = {total_energy} Hartree'
 
-		SI_worksheet.merge_cells('A5:A6')
-		SI_worksheet.merge_cells('B5:D5')
+		if len(coords) > 0:
 
-		SI_worksheet['A5'] = 'Atoms'
-		SI_worksheet['A5'].font = Font(name = font_style, size = font_size, bold = True)
-		SI_worksheet['A5'].alignment = Alignment(horizontal = 'center', vertical = 'bottom')
-		SI_worksheet['A6'].border = Border(bottom = thinBorder)
+			SI_worksheet.merge_cells('A5:A6')
+			SI_worksheet.merge_cells('B5:D5')
 
-		SI_worksheet['B5'] = 'Cartesian Coordinates'
-		SI_worksheet['B5'].font = Font(name = font_style, size = font_size, bold = True)
-		SI_worksheet['B5'].alignment = Alignment(horizontal = 'center', vertical = 'center')
+			SI_worksheet['A5'] = 'Atoms'
+			SI_worksheet['A5'].font = Font(name = font_style, size = font_size, bold = True)
+			SI_worksheet['A5'].alignment = Alignment(horizontal = 'center', vertical = 'bottom')
+			SI_worksheet['A6'].border = Border(bottom = thinBorder)
 
-		SI_worksheet['B6'] = 'X'
-		SI_worksheet['B6'].font = Font(name = font_style, size = font_size, bold = True, italic = True)
-		SI_worksheet['B6'].alignment = Alignment(horizontal = 'center', vertical = 'center')
-		SI_worksheet['B6'].border = Border(top = dashedBorder, bottom = thinBorder)
-		SI_worksheet['C6'] = 'Y'
-		SI_worksheet['C6'].font = Font(name = font_style, size = font_size, bold = True, italic = True)
-		SI_worksheet['C6'].alignment = Alignment(horizontal = 'center', vertical = 'center')
-		SI_worksheet['C6'].border = Border(top = dashedBorder, bottom = thinBorder)
-		SI_worksheet['D6'] = 'Z'
-		SI_worksheet['D6'].font = Font(name = font_style, size = font_size, bold = True, italic = True)
-		SI_worksheet['D6'].alignment = Alignment(horizontal = 'center', vertical = 'center')
-		SI_worksheet['D6'].border = Border(top = dashedBorder, bottom = thinBorder)
+			SI_worksheet['B5'] = 'Cartesian Coordinates'
+			SI_worksheet['B5'].font = Font(name = font_style, size = font_size, bold = True)
+			SI_worksheet['B5'].alignment = Alignment(horizontal = 'center', vertical = 'center')
 
-		excel_coordss = []
-		for s in range(len(coords)):
-			excel_coords = []
-			excel_coords.append(coords[s].split()[0])
-			excel_coords.append(coords[s].split()[1])
-			excel_coords.append(coords[s].split()[2])
-			excel_coords.append(coords[s].split()[3])
-			excel_coordss.append(excel_coords)
+			SI_worksheet['B6'] = 'X'
+			SI_worksheet['B6'].font = Font(name = font_style, size = font_size, bold = True, italic = True)
+			SI_worksheet['B6'].alignment = Alignment(horizontal = 'center', vertical = 'center')
+			SI_worksheet['B6'].border = Border(top = dashedBorder, bottom = thinBorder)
+			SI_worksheet['C6'] = 'Y'
+			SI_worksheet['C6'].font = Font(name = font_style, size = font_size, bold = True, italic = True)
+			SI_worksheet['C6'].alignment = Alignment(horizontal = 'center', vertical = 'center')
+			SI_worksheet['C6'].border = Border(top = dashedBorder, bottom = thinBorder)
+			SI_worksheet['D6'] = 'Z'
+			SI_worksheet['D6'].font = Font(name = font_style, size = font_size, bold = True, italic = True)
+			SI_worksheet['D6'].alignment = Alignment(horizontal = 'center', vertical = 'center')
+			SI_worksheet['D6'].border = Border(top = dashedBorder, bottom = thinBorder)
 
-		for line in excel_coordss:
-			SI_worksheet.append(line)
-		
-		cellRange1 = SI_worksheet['A7:D8007']
-		for cellNum in cellRange1:
-			for cellNum1 in cellNum:
-				cellNum1.font = Font(name = font_style, size = 10)
-				cellNum1.alignment = Alignment(horizontal = 'center', vertical = 'center')
+			excel_coordss = []
+			for s in range(len(coords)):
+				excel_coords = []
+				excel_coords.append(coords[s].split()[0])
+				excel_coords.append(coords[s].split()[1])
+				excel_coords.append(coords[s].split()[2])
+				excel_coords.append(coords[s].split()[3])
+				excel_coordss.append(excel_coords)
 
-		lastLine = len(coords) + 6
+			for line in excel_coordss:
+				SI_worksheet.append(line)
+			
+			cellRange1 = SI_worksheet['A7:D8007']
+			for cellNum in cellRange1:
+				for cellNum1 in cellNum:
+					cellNum1.font = Font(name = font_style, size = 10)
+					cellNum1.alignment = Alignment(horizontal = 'center', vertical = 'center')
 
-		cellRange7 = SI_worksheet[f'A{lastLine}:D{lastLine}']
-		for cellNum7 in cellRange7:
-			for cellNum8 in cellNum7:
-				cellNum8.border = Border(bottom = mediumBorder)
+			lastLine = len(coords) + 6
+
+			cellRange7 = SI_worksheet[f'A{lastLine}:D{lastLine}']
+			for cellNum7 in cellRange7:
+				for cellNum8 in cellNum7:
+					cellNum8.border = Border(bottom = mediumBorder)
 
 	elif si_style == 6:
+		if len(coords) == 0:
+			print('No coordinates found in output file. Exiting the program...')
+			sys.exit()
+
 		print('Generating coordinates .xlsx file ...')
 
 		# Generate Excel file and format cells

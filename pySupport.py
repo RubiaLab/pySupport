@@ -1,13 +1,14 @@
 #!/usr/bin/python
 __author__ = 'RubiaLab'
 __email__ = 'rubialab@rubialab.de'
-__version__ = '1.0'
+__version__ = '1.1'
 
 def main():
 
 	import modules.txt_generator as txt
 	import modules.xlsx_generator as xlsx
 	import modules.tex_generator as tex
+	import modules.xyz_generator as xyz
 	import sys
 	import os
 
@@ -27,7 +28,9 @@ def main():
 				'[6] Coordinates only (.xlsx)\n',
 				'[7] Full (.tex)\n',
 				'[8] Simple (.tex)\n',
-				'[9] Coordinates only (.tex)')
+				'[9] Coordinates only (.tex)\n',
+				'[10] XYZ file (ORCA style)\n',
+				'[11] XYZ file (Gaussian style)')
 
 	si_style = int(input('Please enter a number for the SI style: '))
 
@@ -69,7 +72,7 @@ def main():
 		print('Program version: ', program_version)
 
 		if not calc_program:
-			print('Could not determine calculation program. Exiting the program.')
+			print('Could not determine calculation program. Exiting the program...')
 			sys.exit()
 
 		#Calculation file analysis
@@ -88,6 +91,9 @@ def main():
 		elif si_style in [7, 8, 9]:
 			tex.generate_tex(si_style, file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords)
 			print(f'File "{file.strip()[:-3]}tex" for Supporting Information saved in the same directory.')
+		elif si_style in [10, 11]:
+			xyz.generate_xyz(si_style, file, coords)
+			print(f'File "{file.strip()[:-3]}xyz" saved in the same directory.')
 
 	if si_style in [4, 5, 6]:
 		#Remove first empty worksheet
