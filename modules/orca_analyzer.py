@@ -43,6 +43,8 @@ def analyzer(filename):
 					jobtype = 'opt+freq'
 				else:
 					jobtype = 'freq'
+			elif '%tddft'.casefold() in calc_output[k].casefold():
+				jobtype = 'tddft'
 
 		#Determine basis set
 		if 'Your calculation utilizes the basis:' in line:
@@ -88,14 +90,14 @@ def analyzer(filename):
 			if float(calc_output[freq_line].split()[1]) < 0:
 				imaginary_freqs.append(calc_output[freq_line].split()[1])
 
-	print('Jobtype: ', jobtype)
-	print('Basis set: ', basis_set)
-	print('Charge: ', charge)
-	print('Multiplicity: ', multiplicity)
+	print('Jobtype:', jobtype)
+	print('Basis set:', basis_set)
+	print('Charge:', charge)
+	print('Multiplicity:', multiplicity)
 	print(f'Total energy: {total_energy} Hartree')
 	if jobtype == 'freq' or jobtype == 'opt+freq':
-		print('Frequencies: ', freqs)
-		print('Imaginary frequencies: ', imaginary_freqs)
+		print('Frequencies:', freqs)
+		print('Imaginary frequencies:', imaginary_freqs)
 	print(f'Coords: {coords}')
 
 	return file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords
