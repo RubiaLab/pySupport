@@ -28,6 +28,8 @@ The build-in menu offers different options of formatting the SI output. You can 
  [7] Full (.tex)
  [8] Simple (.tex)
  [9] Coordinates only (.tex)
+ [10] XYZ file (ORCA style)
+ [11] XYZ File (Gaussian style)
 Please enter a number for the SI style:
 ```
 
@@ -48,6 +50,10 @@ The ```Simple``` format style prints **file name**, **basis set**, **charge** an
 #### Coordinates only
 
 The ```Coordinates only``` format style will only print **file name** and **cartesian coordinates**.
+
+### XYZ File Generation
+
+Modes [10] and [11] generate XYZ files from the loaded calculation files in ORCA or Gaussian style, respectively. The difference between those two types is that the ORCA files starts with the number of atoms in the first and a comment in the second line, while Gaussian only uses the atomic coordinates.
 
 ## Requirements
 
