@@ -1,7 +1,7 @@
 #!/usr/bin/python
 __author__ = 'RubiaLab'
 __email__ = 'rubialab@rubialab.de'
-__version__ = '1.1'
+__version__ = '1.2'
 
 def main():
 
@@ -77,19 +77,19 @@ def main():
 
 		#Calculation file analysis
 		if program_type == 0:
-			file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords = fa.analyzer(filename)
+			file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords, state_blocks, energies, wavelengths, f_osc = fa.analyzer(filename)
 		if program_type == 1:
-			file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords = fa.analyzer(filename)
+			file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords, state_blocks, energies, wavelengths, f_osc = fa.analyzer(filename)
 
 		#SI file generation
 		if si_style in [1, 2, 3]:
-			txt.generate_txt(si_style, file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords)
+			txt.generate_txt(si_style, file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords, state_blocks, energies, wavelengths, f_osc)
 			print(f'File "{filename.strip()[:-3]}txt" for Supporting Information saved in the same directory.')
 		elif si_style in [4, 5, 6]:
-			xlsx.generate_xlsx(si_style, SI_workbook, file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords)
+			xlsx.generate_xlsx(si_style, SI_workbook, file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords, state_blocks, energies, wavelengths, f_osc)
 			print(f'Files for Supporting Information saved as "SI_output.xlsx" in the same directory.')
 		elif si_style in [7, 8, 9]:
-			tex.generate_tex(si_style, file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords)
+			tex.generate_tex(si_style, file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords, state_blocks, energies, wavelengths, f_osc)
 			print(f'File "{file.strip()[:-3]}tex" for Supporting Information saved in the same directory.')
 		elif si_style in [10, 11]:
 			xyz.generate_xyz(si_style, file, coords)

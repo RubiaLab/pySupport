@@ -11,6 +11,10 @@ def analyzer(filename):
 
 	freqs = []
 	imaginary_freqs = []
+	state_blocks = []
+	energies = []
+	wavelengths = []
+	f_osc = []
 
 	periodTable = ['Bq', 'H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne', 'Na', 'Mg', 'Al', 'Si', 'P', 'S', 'Cl', 'Ar', \
 					'K', 'Ca', 'Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn', 'Ga', 'Ge', 'As', 'Se', 'Br', 'Kr', \
@@ -117,4 +121,4 @@ def analyzer(filename):
 		print('Imaginary frequencies: ', imaginary_freqs)
 	print(f'Coords: {coords}')
 
-	return file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords
+	return file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords, state_blocks, energies, wavelengths, f_osc

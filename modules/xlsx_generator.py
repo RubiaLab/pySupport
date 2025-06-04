@@ -6,7 +6,7 @@ linecolor = '000000'
 font_style = 'Arial'
 font_size = 10
 
-def generate_xlsx(si_style, SI_workbook, file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords):
+def generate_xlsx(si_style, SI_workbook, file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords, state_blocks, energies, wavelengths, f_osc):
 	
 	if si_style == 4:
 		print('Generating Full .xlsx file ...')
@@ -372,3 +372,70 @@ def generate_xlsx(si_style, SI_workbook, file, basis_set, charge, multiplicity, 
 		for cellNum7 in cellRange7:
 			for cellNum8 in cellNum7:
 				cellNum8.border = Border(bottom = mediumBorder)
+				
+	if jobtype == 'tddft':
+		write_tddft = input('Write TD-DFT summary ([yes]/no)? ').strip().lower() or ('yes')
+		if write_tddft == 'yes':
+			print('Writing TD-DFT summary...')
+			# Generate Excel file and format cells
+			SI_worksheet = SI_workbook.create_sheet(title=file.strip()[:-4] + ' TD-DFT Summary')
+			mediumBorder = Side(border_style = 'medium', color = linecolor)
+			thinBorder = Side(border_style = 'thin', color = linecolor)
+			dashedBorder = Side(border_style = 'dashed', color = linecolor)
+			SI_worksheet.column_dimensions['A'].width = 10
+			SI_worksheet.column_dimensions['B'].width = 21
+			SI_worksheet.column_dimensions['C'].width = 15
+			SI_worksheet.column_dimensions['D'].width = 15
+			SI_worksheet.column_dimensions['E'].width = 15
+
+			cellRange3 = SI_worksheet['A1:E1']
+			for cellNum3 in cellRange3:
+				for cellNum4 in cellNum3:
+					cellNum4.border = Border(bottom = thinBorder)
+					cellNum4.font = Font(name = font_style, size = 10, bold = True)
+					cellNum4.alignment = Alignment(horizontal = 'center', vertical = 'center')
+					
+			SI_worksheet['A1'] = 'State'
+			SI_worksheet['B1'] = 'Orbital Contribution'
+			SI_worksheet['C1'] = 'Energy (eV)'
+			SI_worksheet['D1'] = 'Wavelength (nm)'
+			SI_worksheet['E1'] = 'f_osc'
+
+			row = 2
+
+			wrap_center = Alignment(wrap_text=True, vertical='top', horizontal='center')  # Stil für Orbital Contribution
+			cell_alignment = Alignment(horizontal='center', vertical='top')
+			cell_font = Font(name = font_style, size = font_size)
+
+			def set_cell(ws, coord, value, alignment=cell_alignment, font=cell_font):
+				ws[coord] = value
+				ws[coord].alignment = alignment
+				ws[coord].font = font
+
+			for n in range(len(state_blocks)):
+				block_length = len(state_blocks[n])
+				start_row = row
+				end_row = row + block_length - 1
+
+				orbital_text = '\n'.join([
+					f'{sb[0]} → {sb[1]} ({sb[2]:.3f})'
+					for sb in state_blocks[n]
+				])
+
+				SI_worksheet.merge_cells(f'A{start_row}:A{end_row}')
+				SI_worksheet.merge_cells(f'B{start_row}:B{end_row}')
+				SI_worksheet.merge_cells(f'C{start_row}:C{end_row}')
+				SI_worksheet.merge_cells(f'D{start_row}:D{end_row}')
+				SI_worksheet.merge_cells(f'E{start_row}:E{end_row}')
+
+				set_cell(SI_worksheet, f'A{start_row}', n + 1)
+				set_cell(SI_worksheet, f'B{start_row}', orbital_text, wrap_center, cell_font)
+				set_cell(SI_worksheet, f'C{start_row}', f'{energies[n]:.2f}')
+				set_cell(SI_worksheet, f'D{start_row}', f'{wavelengths[n]:.1f}')
+				set_cell(SI_worksheet, f'E{start_row}', f'{f_osc[n]}')
+
+				# Bottom border für letzte Zeile setzen
+				for col in ['A', 'B', 'C', 'D', 'E']:
+					SI_worksheet[f'{col}{end_row}'].border = Border(bottom=thinBorder)
+
+				row = end_row + 1
