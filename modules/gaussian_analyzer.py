@@ -11,6 +11,7 @@ def analyzer(filename):
 
 	freqs = []
 	imaginary_freqs = []
+	states = []
 	state_blocks = []
 	energies = []
 	wavelengths = []
@@ -47,14 +48,18 @@ def analyzer(filename):
 		#Determine job type
 		jobtype = 'other'
 		opt_found = False
-		if 'opt' in calc_output[input_line]:
+		route_line = calc_output[input_line].lower()
+
+		if 'opt' in route_line:
 			jobtype = 'opt'
 			opt_found = True
-		if 'freq' in calc_output[input_line]:
+		if 'freq' in route_line:
 			if opt_found:
 				jobtype = 'opt+freq'
 			else:
 				jobtype = 'freq'
+		if 'td' in route_line:
+			jobtype = 'tddft'
 
 		#Determine basis set
 		if 'Standard basis:' in line:
@@ -111,6 +116,43 @@ def analyzer(filename):
 				except:
 					continue
 
+	# TD-DFT section
+	if jobtype == 'tddft':
+		current_block = []
+		for r in range(len(calc_output)):
+			if 'Excited State' in calc_output[r]:
+				tddft_section_start = r
+				break
+		for r in range(len(calc_output)):
+			if 'Population analysis' in calc_output[r]:
+				tddft_section_end = r - 3
+				break
+
+		for s in range(tddft_section_start, tddft_section_end):
+			line = calc_output[s].strip()
+			if not line:
+				continue  # überspringt leere Zeilen
+			parts = line.split()
+			if parts[0] == 'Excited' and 'State' in parts[1]:
+				print(str(s) + calc_output[s])
+				energies.append(float(calc_output[s].strip().split()[4]))
+				wavelengths.append(float(calc_output[s].strip().split()[6]))
+				f_osc.append(format(float(calc_output[s].strip().split()[8][2:]),'.2f'))
+				if current_block:
+					state_blocks.append(current_block)
+					current_block = []
+			else:
+				try:
+					from_orb = int(parts[0])
+					to_orb = int(parts[2])
+					coeff = float(parts[3]) ** 2 * 100
+					current_block.append([from_orb, to_orb, coeff])
+				except (IndexError, ValueError):
+					continue
+
+		if current_block:
+			state_blocks.append(current_block)		
+
 	print('Jobtype: ', jobtype)
 	print('Basis set: ', basis_set)
 	print('Charge: ', charge)
@@ -120,5 +162,10 @@ def analyzer(filename):
 		print('Frequencies: ', freqs)
 		print('Imaginary frequencies: ', imaginary_freqs)
 	print(f'Coords: {coords}')
+	if jobtype == 'tddft':
+			print('State blocks:', state_blocks)
+			print('Energies (eV):', energies)
+			print('Wavelengths (nm):', wavelengths)
+			print('f_osc:', f_osc)
 
 	return file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords, state_blocks, energies, wavelengths, f_osc
