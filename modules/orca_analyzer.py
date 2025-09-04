@@ -43,17 +43,20 @@ def analyzer(filename):
 		#Determine job type
 		jobtype = 'other'
 		opt_found = False
-		for k in range(input_section_start, input_section_end):
-			if 'opt'.casefold() in calc_output[k].casefold():
-				jobtype = 'opt'
-				opt_found = True
-			elif 'freq'.casefold() in calc_output[k].casefold():
-				if opt_found:
-					jobtype = 'opt+freq'
-				else:
-					jobtype = 'freq'
-			elif '%tddft'.casefold() in calc_output[k].casefold():
-				jobtype = 'tddft'
+		if '* Single Point Calculation *' in calc_output[input_section_end+3]:
+			jobtype = 'sp'
+		else:
+			for k in range(input_section_start, input_section_end):
+				if 'opt'.casefold() in calc_output[k].casefold():
+					jobtype = 'opt'
+					opt_found = True
+				elif 'freq'.casefold() in calc_output[k].casefold():
+					if opt_found:
+						jobtype = 'opt+freq'
+					else:
+						jobtype = 'freq'
+				elif '%tddft'.casefold() in calc_output[k].casefold():
+					jobtype = 'tddft'
 
 		#Determine basis set
 		if 'Your calculation utilizes the basis:' in line:
@@ -74,7 +77,16 @@ def analyzer(filename):
 			total_energy = line.split()[4]
 
 		#Determine coordinates ORCA
-		if '*** FINAL ENERGY EVALUATION AT THE STATIONARY POINT ***' in line:
+		if jobtype == 'sp':
+			if 'CARTESIAN COORDINATES (ANGSTROEM)' in line:
+				l = j + 2
+				while l < len(calc_output):  
+					if '------' in calc_output[l]:
+						break
+					coords.append(calc_output[l].strip())  
+					l += 1
+				coords.pop()  #removes empty line after coordinates
+		elif '*** FINAL ENERGY EVALUATION AT THE STATIONARY POINT ***' in line:
 			l = j + 6
 			while l < len(calc_output):  
 				if '------' in calc_output[l]:
