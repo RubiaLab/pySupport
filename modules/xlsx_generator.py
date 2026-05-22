@@ -378,7 +378,7 @@ def generate_xlsx(si_style, SI_workbook, file, basis_set, charge, multiplicity, 
 		if write_tddft == 'yes':
 			print('Writing TD-DFT summary...')
 			# Generate Excel file and format cells
-			SI_worksheet = SI_workbook.create_sheet(title=file.strip()[:-4] + ' TD-DFT Summary')
+			SI_worksheet = SI_workbook.create_sheet(title=file.strip()[:-4] + '_TD-DFT')
 			mediumBorder = Side(border_style = 'medium', color = linecolor)
 			thinBorder = Side(border_style = 'thin', color = linecolor)
 			dashedBorder = Side(border_style = 'dashed', color = linecolor)

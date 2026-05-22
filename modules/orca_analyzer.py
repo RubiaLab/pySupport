@@ -45,18 +45,18 @@ def analyzer(filename):
 		opt_found = False
 		if '* Single Point Calculation *' in calc_output[input_section_end+3]:
 			jobtype = 'sp'
-		else:
-			for k in range(input_section_start, input_section_end):
-				if 'opt'.casefold() in calc_output[k].casefold():
-					jobtype = 'opt'
-					opt_found = True
-				elif 'freq'.casefold() in calc_output[k].casefold():
-					if opt_found:
-						jobtype = 'opt+freq'
-					else:
-						jobtype = 'freq'
-				elif '%tddft'.casefold() in calc_output[k].casefold():
-					jobtype = 'tddft'
+
+		for k in range(input_section_start, input_section_end):
+			if 'opt'.casefold() in calc_output[k].casefold():
+				jobtype = 'opt'
+				opt_found = True
+			elif 'freq'.casefold() in calc_output[k].casefold():
+				if opt_found:
+					jobtype = 'opt+freq'
+				else:
+					jobtype = 'freq'
+			elif '%tddft'.casefold() in calc_output[k].casefold():
+				jobtype = 'tddft'
 
 		#Determine basis set
 		if 'Your calculation utilizes the basis:' in line:
@@ -150,7 +150,7 @@ def analyzer(filename):
 		# TD-DFT section
 			current_block = []
 			for r in range(len(calc_output)):
-				if 'TD-DFT/TDA EXCITED STATES' in calc_output[r]:
+				if 'EXCITED STATES' in calc_output[r]:
 					tddft_section_start = r + 7
 				if 'ABSORPTION SPECTRUM VIA TRANSITION ELECTRIC DIPOLE MOMENTS' in calc_output[r]:
 					states_section_start = r + 5
@@ -177,7 +177,13 @@ def analyzer(filename):
 
 			if current_block:
 				state_blocks.append(current_block)
-			
+
+			filter_coeff = 0.05
+			state_blocks = [
+				filtered_block
+				for block in state_blocks
+				if (filtered_block := [entry for entry in block if abs(entry[2]) > filter_coeff])
+			]	
 			for t in range(states_section_start, tddft_section_end):
 				states.append(calc_output[t].strip().split()) #evtl rausnehmen
 				energies.append(float(calc_output[t].strip().split()[3]))
@@ -210,6 +216,7 @@ def analyzer(filename):
 			print(f'LUMO Energy: {orbitals[lumo_number][2]} Hartree')
 		if jobtype == 'tddft':
 			#print('States: ', states)
+			print(f'Only listing orbital contribution > {filter_coeff}.')
 			print('State blocks:', state_blocks)
 			print('Energies (eV):', energies)
 			print('Wavelengths (nm):', wavelengths)
