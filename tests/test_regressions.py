@@ -184,11 +184,30 @@ class TexGeneratorTest(TempDirTestCase):
 		tex = self.generate(7, 'orca_opt_freq.out')
 		self.assertIn(r'$\nu_{i}$ = -150.00 cm$^{-1}$', tex)
 
-	def test_tddft_summary_of_coordinates_only_style_has_own_table(self):
-		tex = self.generate(9, 'orca_tddft.out')
-		coordinates, tddft = tex.split(r'\begin{tabular}{ccccc}')
-		self.assertIn(r'\begin{tabular}{cccc}', coordinates)
-		self.assertIn(r'\textbf{State}', tddft)
+	def test_tddft_summary_has_own_table(self):
+		for si_style in (7, 8, 9):
+			with self.subTest(si_style=si_style):
+				coordinates, tddft = self.generate(si_style, 'orca_tddft.out').split(r'\begin{longtable}{ccccc}')
+				self.assertIn('Cartesian Coordinates', coordinates)
+				self.assertNotIn(r'\textbf{State}', coordinates)
+				self.assertIn(r'\textbf{State}', tddft)
+
+	@unittest.skipUnless(shutil.which('pdflatex'), 'pdflatex is not installed')
+	def test_long_tables_break_across_pages(self):
+		#150 atoms and 60 excited states do not fit on one page, nothing may be cut off at the bottom of a page
+		coords = [f'C {n:.6f} 0.000000 0.000000' for n in range(150)]
+		state_blocks = [[[10, 11, 0.9], [9, 12, 0.08]] for n in range(60)]
+		energies = [2.0 + n / 10 for n in range(60)]
+		wavelengths = [1239.84 / energy for energy in energies]
+		f_osc = ['0.10'] * 60
+		for si_style in (7, 8, 9):
+			with self.subTest(si_style=si_style):
+				with mock.patch('builtins.input', return_value='yes'), contextlib.redirect_stdout(io.StringIO()):
+					tex_generator.generate_tex(si_style, 'large.out', 'def2-SVP', '0', '1', '-1000.0', 'tddft', [], coords, state_blocks, energies, wavelengths, f_osc)
+				result = subprocess.run(['pdflatex', '-interaction=nonstopmode', '-halt-on-error', 'large.tex'], capture_output=True, text=True, errors='replace', timeout=120)
+				self.assertEqual(result.returncode, 0, result.stdout[-1500:])
+				with open('large.log', errors='replace') as f:
+					self.assertNotIn(r'Overfull \vbox', f.read())
 
 	@unittest.skipUnless(shutil.which('pdflatex'), 'pdflatex is not installed')
 	def test_tex_files_compile(self):
