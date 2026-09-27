@@ -57,6 +57,8 @@ The ```Coordinates only``` format style will only print **file name** and **cart
 
 For TD-DFT calculations every style can add a table of the excited states with **orbital contributions**, **HOMO/LUMO notation**, **energy**, **wavelength** and **oscillator strength**. As in ORCA, orbitals are counted from 0 and contributions are given as weights, also for Gaussian.
 
+With singlets and triplets (ORCA ```triplets true```, Gaussian ```TD(50-50)```) the states are labelled S1, S2, ... and T1, T2, ... and sorted by energy. The electronic energy of a TD-DFT single point is the ground state energy, an excited state optimization gives the energy of the optimized state and the excited states at the final geometry.
+
 #### LaTeX
 
 Tables continue over several pages (```longtable```). Compile two or three times or use ```latexmk```.

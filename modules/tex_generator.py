@@ -19,7 +19,7 @@ def write_tddft_table(si_out, data):
 	write_page_head(si_out, tddft_header)
 	for n in range(len(data.state_blocks)):
 		for m, contribution in enumerate(data.state_blocks[n]):
-			state_str = f'{n+1}' if m == 0 else ''
+			state_str = data.state_label(n) if m == 0 else ''
 			energy_str = f'{data.energies[n]:.2f}' if m == 0 else ''
 			wavelength_str = f'{data.wavelengths[n]:.1f}' if m == 0 else ''
 			f_osc_str = f'{data.f_osc[n]}' if m == 0 else ''

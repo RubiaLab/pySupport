@@ -31,6 +31,7 @@ def analyzer(filename):
 	thermochemistry = {}
 	homo = {}
 	state_blocks = []
+	spins = []
 	energies = []
 	wavelengths = []
 	f_osc = []
@@ -55,6 +56,7 @@ def analyzer(filename):
 	geo_start_line = None
 	input_geo_start_line = None
 	basis_set = 'unknown'
+	excited_state_energy = None
 
 	#Route section: from the first line starting with # up to the next line of dashes (or an empty line).
 	#Long routes are wrapped after a fixed number of characters, also within keywords.
@@ -102,6 +104,9 @@ def analyzer(filename):
 		#Determine total energy
 		if 'SCF Done:' in line:
 			total_energy = line.split()[4]
+		#Total energy of the excited state that is optimized (root)
+		if line.strip().startswith('Total Energy, E('):
+			excited_state_energy = line.split('=')[1].split()[0]
 
 		#Determine HOMO counted from 0 for the alpha (a) and beta (b) electrons, closed shell: ''
 		if 'alpha electrons' in line and 'beta electrons' in line:
@@ -146,33 +151,30 @@ def analyzer(filename):
 				freqs.extend(calc_output[n].split()[2:])
 		imaginary_freqs = [freq for freq in freqs if float(freq) < 0]
 
-	# TD-DFT section
+	# TD-DFT section: excited states of the last TD-DFT calculation (an optimization repeats it at every step)
 	if jobtype == 'tddft':
-		for r in range(len(calc_output)):
-			if 'Excited State' in calc_output[r]:
-				tddft_section_start = r
-				break
-		for r in range(len(calc_output)):
-			if 'Population analysis' in calc_output[r]:
-				tddft_section_end = r - 3
-				break
-
-		for s in range(tddft_section_start, tddft_section_end):
-			line = calc_output[s].strip()
-			if not line:
-				continue  # überspringt leere Zeilen
+		in_state = False
+		for line in calc_output:
 			parts = line.split()
-			if parts[0] == 'Excited' and 'State' in parts[1]:
+			if re.match(r'\s*Excited State\s+\d+:', line):
+				if parts[2] == '1:':
+					state_blocks, spins, energies, wavelengths, f_osc = [], [], [], [], []
+				#Singlet-A, Triplet-A or <S**2> of an unrestricted calculation, e.g. 3.037-A
+				spins.append('S' if parts[3].startswith('Singlet') else 'T' if parts[3].startswith('Triplet') else '')
 				energies.append(float(parts[4]))
 				wavelengths.append(float(parts[6]))
 				f_osc.append(format(float(parts[8][2:]),'.2f'))
 				state_blocks.append([])
-			#Excitations "i -> a" only, de-excitations "i <- a" are skipped
-			elif state_blocks and len(parts) == 4 and parts[1] == '->':
+				in_state = True
+			#The orbital contributions follow the state line: excitations "i -> a" only, de-excitations "i <- a" are skipped
+			elif in_state and len(parts) == 4 and parts[1] in ('->', '<-'):
 				try:
-					state_blocks[-1].append(orca_style_contribution(parts[0], parts[2], float(parts[3])))
+					if parts[1] == '->':
+						state_blocks[-1].append(orca_style_contribution(parts[0], parts[2], float(parts[3])))
 				except ValueError:
 					continue
+			else:
+				in_state = False
 
 		#Keep the contributions above filter_coeff, but at least the largest one, so that no state is dropped
 		filter_coeff = 0.05
@@ -180,6 +182,10 @@ def analyzer(filename):
 			[entry for entry in block if abs(entry[2]) > filter_coeff] or sorted(block, key=lambda entry: abs(entry[2]))[-1:]
 			for block in state_blocks
 		]
+
+	#Excited state optimization: the energy of the optimized state instead of the ground state energy at its geometry
+	if jobtype == 'tddft' and opt_found and excited_state_energy:
+		total_energy = excited_state_energy
 
 	print('Jobtype: ', jobtype)
 	print('Basis set: ', basis_set)
@@ -197,4 +203,4 @@ def analyzer(filename):
 			print('f_osc:', f_osc)
 
 	return CalcData(filename, basis_set=basis_set, charge=charge, multiplicity=multiplicity, total_energy=total_energy, jobtype=jobtype, imaginary_freqs=imaginary_freqs,
-		thermochemistry=thermochemistry, coords=coords, homo=homo, state_blocks=state_blocks, energies=energies, wavelengths=wavelengths, f_osc=f_osc)
+		thermochemistry=thermochemistry, coords=coords, homo=homo, state_blocks=state_blocks, spins=spins, energies=energies, wavelengths=wavelengths, f_osc=f_osc)

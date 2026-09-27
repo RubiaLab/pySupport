@@ -30,7 +30,7 @@ def generate_txt(si_style, data):
 			si_out.write('-' * 80 + '\n')
 			for n in range(len(data.state_blocks)):
 				for m, contribution in enumerate(data.state_blocks[n]):
-					state_str = f'{n+1}' if m == 0 else ''
+					state_str = data.state_label(n) if m == 0 else ''
 					orbital_contribution_str = f'{contribution[0]} -> {contribution[1]} ({contribution[2]:.3f})'
 					energy_str = f'{data.energies[n]:.2f}' if m == 0 else ''
 					wavelength_str = f'{data.wavelengths[n]:.1f}' if m == 0 else ''

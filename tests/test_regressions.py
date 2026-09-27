@@ -1,9 +1,9 @@
 #Regression tests for pySupport
 #
 #The files in tests/fixtures only contain the sections of ORCA 6 and Gaussian 16 output files that
-#pySupport reads. orca_tddft_triplet.out, orca_thermochemistry.out, gaussian_tddft_singlet.out,
-#gaussian_tddft_triplet.out and gaussian_freq.out are trimmed real outputs (benzene, B3LYP/6-31G(d)),
-#the other files are synthetic.
+#pySupport reads. orca_tddft_triplet.out, orca_tddft_singlets_triplets.out, orca_thermochemistry.out,
+#gaussian_tddft_singlet.out, gaussian_tddft_triplet.out, gaussian_opt_tddft.out and gaussian_freq.out are
+#trimmed real outputs (benzene, B3LYP/6-31G(d)), the other files are synthetic.
 #
 #Run from the repository root (Python >= 3.12):
 #	python3 -m unittest discover -s tests -v
@@ -69,7 +69,7 @@ class TempDirTestCase(unittest.TestCase):
 		return self.write(new_name, text.replace(old, new))
 
 
-class OrcaAnalyzerTest(unittest.TestCase):
+class OrcaAnalyzerTest(TempDirTestCase):
 
 	def test_opt_and_freq_in_one_keyword_line(self):
 		data = analyze(orca_analyzer.analyzer, fixture('orca_opt_freq.out'))
@@ -120,6 +120,33 @@ class OrcaAnalyzerTest(unittest.TestCase):
 		data = analyze(orca_analyzer.analyzer, fixture('orca_tddft_triplet.out'))
 		self.assertEqual(data.state_blocks[0], [['21a', '22a', 0.493365], ['19b', '20b', 0.502866]])
 		self.assertEqual(len(data.state_blocks), len(data.energies))
+
+	def test_tddft_singlets_and_triplets(self):
+		#triplets true: the triplets (STATE 9-16) follow the singlets, the absorption spectrum lists all states sorted by energy (1-3A = T1)
+		data = analyze(orca_analyzer.analyzer, fixture('orca_tddft_singlets_triplets.out'))
+		self.assertEqual(len(data.state_blocks), 16)
+		self.assertEqual([data.state_label(n) for n in range(16)], ['T1', 'T2', 'T3', 'T4', 'S1', 'S2', 'T5', 'T6', 'T7', 'T8', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8'])
+		self.assertEqual(data.energies[:6], [4.187259, 4.836735, 4.837027, 5.237142, 5.568385, 6.566549])
+		self.assertEqual(data.state_blocks[0], [['19', '21', 0.489315], ['20', '22', 0.487455]])
+		self.assertEqual(data.state_blocks[4], [['19', '22', 0.499008], ['20', '21', 0.498801]])
+		self.assertEqual(data.state_blocks[13], [['17', '21', 0.50112], ['18', '22', 0.494492]])
+		self.assertEqual(data.f_osc[13], '0.01')
+
+	def test_tddft_single_point_gives_the_ground_state_energy(self):
+		#The final single point energy includes the excitation energy of state 1 (DE(CIS)), like in Gaussian the SCF energy is given
+		data = analyze(orca_analyzer.analyzer, fixture('orca_tddft_singlets_triplets.out'))
+		self.assertEqual(data.total_energy, '-232.089713083')
+
+	def test_excited_state_optimization_uses_the_last_tddft(self):
+		#An optimization repeats TD-DFT at every step: the states of the last step and the energy of the optimized state are given
+		with open(fixture('orca_tddft_singlets_triplets.out')) as f:
+			text = f.read().replace('! B3LYP 6-31G(d)', '! B3LYP 6-31G(d) Opt')
+		tddft = text[text.index('------------------------------------\nTD-DFT/TDA EXCITED STATES (SINGLETS)'):text.index('-----------------------\nCIS/TD-DFT TOTAL ENERGY')]
+		data = analyze(orca_analyzer.analyzer, self.write('s1_opt.out', text.replace(tddft, tddft.replace('5.568385', '5.600000') + tddft)))
+		self.assertEqual(data.jobtype, 'tddft')
+		self.assertEqual(len(data.state_blocks), 16)
+		self.assertEqual(data.energies[4], 5.568385)
+		self.assertEqual(data.total_energy, '-231.885078692739')
 
 
 class GaussianAnalyzerTest(TempDirTestCase):
@@ -189,6 +216,29 @@ class GaussianAnalyzerTest(TempDirTestCase):
 		self.assertEqual(len(data.state_blocks), 20)
 		self.assertEqual(len(data.energies), 20)
 		self.assertEqual(data.state_blocks[0], [['21a', '22a', 0.71274 ** 2], ['19b', '20b', 0.72053 ** 2]])
+
+	def test_excited_state_optimization_uses_the_last_tddft(self):
+		#Opt TD repeats TD-DFT at every step: the states belong to the final geometry, the energy to the optimized state
+		data = analyze(gaussian_analyzer.analyzer, fixture('gaussian_opt_tddft.out'))
+		self.assertEqual(data.jobtype, 'tddft')
+		self.assertEqual(data.coords[0], 'C 0.000000 1.427568 -0.000000')
+		self.assertEqual(data.energies, [5.2715, 6.0457, 7.0789, 7.0789, 7.7345, 7.8431])
+		self.assertEqual(data.f_osc, ['0.00', '0.00', '0.53', '0.53', '0.00', '0.00'])
+		self.assertEqual(len(data.state_blocks), 6)
+		self.assertEqual(data.total_energy, '-232.049917022')
+
+	def test_tddft_single_point_gives_the_ground_state_energy(self):
+		data = analyze(gaussian_analyzer.analyzer, fixture('gaussian_tddft_singlet.out'))
+		self.assertEqual(data.total_energy, '-232.229946518')
+
+	def test_singlets_and_triplets(self):
+		#TD(50-50): singlets and triplets in one list sorted by energy
+		mixed = self.modified_fixture('gaussian_tddft_singlet.out', 'mixed.out', 'Excited State   2:      Singlet-?Sym', 'Excited State   2:      Triplet-?Sym')
+		data = analyze(gaussian_analyzer.analyzer, mixed)
+		self.assertEqual([data.state_label(n) for n in range(4)], ['S1', 'T1', 'S2', 'S3'])
+		#Only singlets (or only triplets): the states are numbered
+		data = analyze(gaussian_analyzer.analyzer, fixture('gaussian_tddft_singlet.out'))
+		self.assertEqual([data.state_label(n) for n in range(4)], ['1', '2', '3', '4'])
 
 	def test_tddft_orbital_labels_match_orca(self):
 		#Same molecule (benzene triplet, B3LYP/6-31G(d)): the lowest states have the same orbital labels in both programs
@@ -270,6 +320,13 @@ class PySupportTest(TempDirTestCase):
 		self.assertEqual(sheetnames, ['water_B3LYP_def2-SVP_TD-DFT_sin', 'water_B3LYP_def2-SVP_TD-_TD-DFT', 'water_B3LYP_def2-SVP_TD-DFT_s_2', 'water_B3LYP_def2-SVP_T_2_TD-DFT'])
 		self.assertEqual(xlsx_generator.sheet_title(openpyxl.Workbook(), 'benzene[1]:opt'), 'benzene_1__opt')
 
+	def test_excel_state_labels(self):
+		self.run_pysupport(5, self.copy_fixture('orca_tddft.out'), self.copy_fixture('orca_tddft_singlets_triplets.out'))
+		workbook = openpyxl.load_workbook('SI_output.xlsx')
+		states = lambda sheet: [cell.value for cell in workbook[sheet]['A'][1:] if cell.value is not None]
+		self.assertEqual(states('orca_tddft_TD-DFT'), [1, 2, 3])
+		self.assertEqual(states('orca_tddft_singlets_trip_TD-DFT')[:6], ['T1', 'T2', 'T3', 'T4', 'S1', 'S2'])
+
 	def test_excel_coordinates_only_skips_files_without_coordinates(self):
 		no_coords = self.modified_fixture('gaussian_genecp.out', 'no_coords.out', 'orientation:', 'orientation removed')
 		self.run_pysupport(6, no_coords, self.copy_fixture('orca_freq.out'))
@@ -295,6 +352,15 @@ class TxtGeneratorTest(TempDirTestCase):
 			text = f.read()
 		self.assertIn('HOMO/LUMO', text)
 		self.assertIn('3      18b -> 20b (0.994)      H-1 -> L      2.91         425.8            0.00\n', text)
+
+	def test_tddft_summary_with_singlets_and_triplets(self):
+		data = analyze(orca_analyzer.analyzer, self.copy_fixture('orca_tddft_singlets_triplets.out'))
+		with mock.patch('builtins.input', return_value=''), contextlib.redirect_stdout(io.StringIO()):
+			txt_generator.generate_txt(2, data)
+		with open('orca_tddft_singlets_triplets.txt') as f:
+			text = f.read()
+		self.assertIn('T1     19 -> 21 (0.489)        H-1 -> L      4.19         296.1            0.00\n', text)
+		self.assertIn('S1     19 -> 22 (0.499)        H-1 -> L+1    5.57         222.7            0.00\n', text)
 
 
 class TexGeneratorTest(TempDirTestCase):
@@ -350,7 +416,7 @@ class TexGeneratorTest(TempDirTestCase):
 
 	@unittest.skipUnless(shutil.which('pdflatex'), 'pdflatex is not installed')
 	def test_tex_files_compile(self):
-		for name in ('orca_opt_freq.out', 'orca_tddft.out', 'orca_tddft_triplet.out', 'orca_thermochemistry.out'):
+		for name in ('orca_opt_freq.out', 'orca_tddft.out', 'orca_tddft_triplet.out', 'orca_tddft_singlets_triplets.out', 'orca_thermochemistry.out'):
 			for si_style in (7, 8, 9):
 				with self.subTest(file=name, si_style=si_style):
 					self.generate(si_style, name)
