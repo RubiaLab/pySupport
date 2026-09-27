@@ -1,0 +1,272 @@
+
+                                 *****************
+                                 * O   R   C   A *
+                         Program Version 6.1.0  -  RELEASE   -
+Your calculation utilizes the basis: 6-31G(d)
+================================================================================
+                                       INPUT FILE
+================================================================================
+NAME = input.inp
+|  1> #
+|  2> # C6H6
+|  3> #
+|  4> 
+|  5> %pal
+|  6>  nproc 8
+|  7> end
+|  8> 
+|  9> ! B3LYP 6-31G(d) 
+| 10> 
+| 11> ! FREQ
+| 12> 
+| 13> 
+| 14> * internal 0 1
+| 15> C 0 0 0 0.0000000 0.0000000 0.0000000
+| 16> C 1 0 0 1.3424250 0.0000000 0.0000000
+| 17> C 2 1 0 1.3424255 119.99996 0.0000000
+| 18> C 3 2 1 1.3424251 120.00001 0.0000000
+| 19> C 4 3 2 1.3424250 119.99998 0.0000000
+| 20> C 5 4 3 1.3424255 120.00001 0.0000000
+| 21> H 6 5 4 1.1038930 119.99996 180.00000
+| 22> H 5 4 3 1.1038929 119.99999 180.00000
+| 23> H 4 3 2 1.1038938 119.99997 180.00000
+| 24> H 3 2 1 1.1038930 119.99996 180.00000
+| 25> H 2 1 6 1.1038929 120.00003 180.00000
+| 26> H 1 2 3 1.1038938 120.00001 180.00000
+| 27> *
+| 28> 
+| 29>                          ****END OF INPUT****
+================================================================================
+
+                       ****************************
+                       * Single Point Calculation *
+                       ****************************
+---------------------------------
+CARTESIAN COORDINATES (ANGSTROEM)
+---------------------------------
+  C      0.000000    0.000000    0.000000
+  C      1.342425    0.000000    0.000000
+  C      2.013637    1.162575    0.000000
+  C      1.342424    2.325149    0.000000
+  C     -0.000001    2.325148    0.000000
+  C     -0.671213    1.162573    0.000000
+  H     -1.775106    1.162573    0.000000
+  H     -0.551948    3.281147    0.000000
+  H      1.894371    3.281149    0.000000
+  H      3.117530    1.162575    0.000000
+  H      1.894372   -0.955999    0.000000
+  H     -0.551947   -0.956000   -0.000000
+
+----------------------------
+CARTESIAN COORDINATES (A.U.)
+----------------------------
+ Total Charge           Charge          ....    0
+ Multiplicity           Mult            ....    1
+ Number of Electrons    NEL             ....   42
+FINAL SINGLE POINT ENERGY      -232.070607966241
+-----------------------
+VIBRATIONAL FREQUENCIES
+-----------------------
+
+Scaling factor for frequencies =  1.000000000  (already applied!)
+
+     0:       0.00 cm**-1
+     1:       0.00 cm**-1
+     2:       0.00 cm**-1
+     3:       0.00 cm**-1
+     4:       0.00 cm**-1
+     5:       0.00 cm**-1
+     6:     305.78 cm**-1
+     7:     305.82 cm**-1
+     8:     630.42 cm**-1
+     9:     630.49 cm**-1
+    10:     668.13 cm**-1
+    11:     790.20 cm**-1
+    12:     947.21 cm**-1
+    13:     947.28 cm**-1
+    14:    1021.20 cm**-1
+    15:    1046.57 cm**-1
+    16:    1046.62 cm**-1
+    17:    1093.08 cm**-1
+    18:    1171.62 cm**-1
+    19:    1172.26 cm**-1
+    20:    1174.68 cm**-1
+    21:    1264.99 cm**-1
+    22:    1286.00 cm**-1
+    23:    1286.13 cm**-1
+    24:    1445.11 cm**-1
+    25:    1652.06 cm**-1
+    26:    1652.42 cm**-1
+    27:    1674.35 cm**-1
+    28:    1882.93 cm**-1
+    29:    1883.28 cm**-1
+    30:    3007.64 cm**-1
+    31:    3020.05 cm**-1
+    32:    3020.15 cm**-1
+    33:    3040.77 cm**-1
+    34:    3040.88 cm**-1
+    35:    3055.20 cm**-1
+
+
+------------
+NORMAL MODES
+------------
+--------------------------
+THERMOCHEMISTRY AT 298.15K
+--------------------------
+
+Temperature         ...   298.15 K
+Pressure            ...     1.00 atm
+Total Mass          ...    78.11 AMU
+Quasi RRHO          ...     True
+Cut-Off Frequency   ...     1.00 cm^-1
+
+Throughout the following assumptions are being made:
+  (1) The electronic state is orbitally nondegenerate
+  (2) There are no thermally accessible electronically excited states
+  (3) Hindered rotations indicated by low frequency modes are not
+      treated as such but are treated as vibrations and this may
+      cause some error
+  (4) All equations used are the standard statistical mechanics
+      equations for an ideal gas
+  (5) All vibrations are strictly harmonic
+
+freq.     305.78  E(vib)   ...       0.26 
+freq.     305.82  E(vib)   ...       0.26 
+freq.     630.42  E(vib)   ...       0.09 
+freq.     630.49  E(vib)   ...       0.09 
+freq.     668.13  E(vib)   ...       0.08 
+freq.     790.20  E(vib)   ...       0.05 
+freq.     947.21  E(vib)   ...       0.03 
+freq.     947.28  E(vib)   ...       0.03 
+freq.    1021.20  E(vib)   ...       0.02 
+freq.    1046.57  E(vib)   ...       0.02 
+freq.    1046.62  E(vib)   ...       0.02 
+freq.    1093.08  E(vib)   ...       0.02 
+freq.    1171.62  E(vib)   ...       0.01 
+freq.    1172.26  E(vib)   ...       0.01 
+freq.    1174.68  E(vib)   ...       0.01 
+freq.    1264.99  E(vib)   ...       0.01 
+freq.    1286.00  E(vib)   ...       0.01 
+freq.    1286.13  E(vib)   ...       0.01 
+freq.    1445.11  E(vib)   ...       0.00 
+freq.    1652.06  E(vib)   ...       0.00 
+freq.    1652.42  E(vib)   ...       0.00 
+freq.    1674.35  E(vib)   ...       0.00 
+freq.    1882.93  E(vib)   ...       0.00 
+freq.    1883.28  E(vib)   ...       0.00 
+freq.    3007.64  E(vib)   ...       0.00 
+freq.    3020.05  E(vib)   ...       0.00 
+freq.    3020.15  E(vib)   ...       0.00 
+freq.    3040.77  E(vib)   ...       0.00 
+freq.    3040.88  E(vib)   ...       0.00 
+freq.    3055.20  E(vib)   ...       0.00 
+
+------------
+INNER ENERGY
+------------
+
+The inner energy is: U= E(el) + E(ZPE) + E(vib) + E(rot) + E(trans)
+    E(el)   - is the total energy from the electronic structure calculation
+              = E(kin-el) + E(nuc-el) + E(el-el) + E(nuc-nuc)
+    E(ZPE)  - the the zero temperature vibrational energy from the frequency calculation
+    E(vib)  - the the finite temperature correction to E(ZPE) due to population
+              of excited vibrational states
+    E(rot)  - is the rotational thermal energy
+    E(trans)- is the translational thermal energy
+
+Summary of contributions to the inner energy U:
+Electronic energy                ...   -232.07060797 Eh
+Zero point energy                ...      0.10288968 Eh      64.56 kcal/mol
+Thermal vibrational correction   ...      0.00164097 Eh       1.03 kcal/mol
+Thermal rotational correction    ...      0.00141627 Eh       0.89 kcal/mol
+Thermal translational correction ...      0.00141627 Eh       0.89 kcal/mol
+-----------------------------------------------------------------------
+Total thermal energy                   -231.96324478 Eh
+
+
+Summary of corrections to the electronic energy:
+(perhaps to be used in another calculation)
+Total thermal correction                  0.00447351 Eh       2.81 kcal/mol
+Non-thermal (ZPE) correction              0.10288968 Eh      64.56 kcal/mol
+-----------------------------------------------------------------------
+Total correction                          0.10736319 Eh      67.37 kcal/mol
+
+
+--------
+ENTHALPY
+--------
+
+The enthalpy is H = U + kB*T
+                kB is Boltzmann's constant
+Total thermal energy              ...   -231.96324478 Eh 
+Thermal Enthalpy correction       ...      0.00094421 Eh       0.59 kcal/mol
+-----------------------------------------------------------------------
+Total Enthalpy                    ...   -231.96230057 Eh
+
+
+Note: Rotational entropy computed according to Herzberg 
+Infrared and Raman Spectra, Chapter V,1, Van Nostrand Reinhold, 1945 
+Point Group:  D6h, Symmetry Number:  12  
+Rotational constants in cm-1:     0.203025     0.203025     0.101513 
+
+Vibrational entropy computed according to the QRRHO of S. Grimme
+Chem.Eur.J. 2012 18 9955 using a reference frequency of 100.0 cm-1
+
+
+-------
+ENTROPY
+-------
+
+The entropy contributions are T*S = T*(S(el)+S(vib)+S(rot)+S(trans))
+     S(el)   - electronic entropy
+     S(vib)  - vibrational entropy
+     S(rot)  - rotational entropy
+     S(trans)- translational entropy
+The entropies will be listed as multiplied by the temperature to get
+units of energy
+
+Electronic entropy                ...      0.00000000 Eh      0.00 kcal/mol
+Vibrational entropy               ...      0.00234883 Eh      1.47 kcal/mol
+Rotational entropy                ...      0.00974998 Eh      6.12 kcal/mol
+Translational entropy             ...      0.01852142 Eh     11.62 kcal/mol
+-----------------------------------------------------------------------
+Final entropy term                ...      0.03062023 Eh     19.21 kcal/mol
+
+In case the symmetry of your molecule has not been determined correctly
+or in case you have a reason to use a different symmetry number we print 
+out the resulting rotational entropy values for sn=1,12:
+
+ non-linear molecules -----------------------------------
+|  sn= 1 | S(rot)=       0.01209618 Eh      7.59 kcal/mol|
+|  sn= 2 | S(rot)=       0.01144172 Eh      7.18 kcal/mol|
+|  sn= 3 | S(rot)=       0.01105889 Eh      6.94 kcal/mol|
+|  sn= 4 | S(rot)=       0.01078726 Eh      6.77 kcal/mol|
+|  sn= 5 | S(rot)=       0.01057658 Eh      6.64 kcal/mol|
+|  sn= 6 | S(rot)=       0.01040443 Eh      6.53 kcal/mol|
+|  sn= 7 | S(rot)=       0.01025889 Eh      6.44 kcal/mol|
+|  sn= 8 | S(rot)=       0.01013281 Eh      6.36 kcal/mol|
+|  sn= 9 | S(rot)=       0.01002160 Eh      6.29 kcal/mol|
+|  sn=10 | S(rot)=       0.00992212 Eh      6.23 kcal/mol|
+|  sn=11 | S(rot)=       0.00983213 Eh      6.17 kcal/mol|
+|  sn=12 | S(rot)=       0.00974998 Eh      6.12 kcal/mol|
+ linear molecules ---------------------------------------
+|  Dinfh | S(rot)=       0.00748569 Eh      4.70 kcal/mol|
+|  Cinfv | S(rot)=       0.00814015 Eh      5.11 kcal/mol|
+ --------------------------------------------------------
+
+
+-------------------
+GIBBS FREE ENERGY
+-------------------
+
+The Gibbs free energy is G = H - T*S
+
+Total enthalpy                    ...   -231.96230057 Eh 
+Total entropy correction          ...     -0.03062023 Eh    -19.21 kcal/mol
+-----------------------------------------------------------------------
+Final Gibbs free energy         ...   -231.99292080 Eh
+
+For completeness - the Gibbs free energy minus the electronic energy
+G-E(el)                           ...      0.07768717 Eh     48.75 kcal/mol
+                             ****ORCA TERMINATED NORMALLY****

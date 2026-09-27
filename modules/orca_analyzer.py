@@ -1,4 +1,5 @@
 import os
+from modules.calc_data import CalcData
 
 def read_coords(calc_output, start):
 	#Read coordinate lines up to the next section header, skipping empty lines
@@ -28,7 +29,6 @@ def analyzer(filename):
 	coords = []
 	freqs = []
 	imaginary_freqs = []
-	states = []
 	energies = []
 	f_osc = []
 	wavelengths = []
@@ -38,6 +38,7 @@ def analyzer(filename):
 	state_blocks = []
 	is_closed = True
 	beta_marker = False
+	electrons = None
 
 	#Determine input section
 	for i in range(len(calc_output)):
@@ -93,6 +94,10 @@ def analyzer(filename):
 		if 'FINAL SINGLE POINT ENERGY' in line:
 			total_energy = line.split()[4]
 
+		#Determine number of electrons
+		if 'Number of Electrons' in line and 'NEL' in line:
+			electrons = int(line.split()[-1])
+
 		#Determine coordinates ORCA: final geometry of an optimization, otherwise the input geometry
 		if opt_found:
 			if '*** FINAL ENERGY EVALUATION AT THE STATIONARY POINT ***' in line:
@@ -117,6 +122,23 @@ def analyzer(filename):
 				freqs.append(calc_output[freq_line].split()[1])
 			if float(calc_output[freq_line].split()[1]) < 0:
 				imaginary_freqs.append(calc_output[freq_line].split()[1])
+
+	#Thermochemistry of a frequency calculation, with the same terms as in Gaussian
+	thermochemistry = {}
+	if jobtype == 'freq' or jobtype == 'opt+freq':
+		energy_terms = {}
+		thermochemistry_start = max((i for i, line in enumerate(calc_output) if 'THERMOCHEMISTRY AT' in line), default=len(calc_output))
+		for line in calc_output[thermochemistry_start:]:
+			parts = line.split()
+			if '...' in parts and 'Eh' in parts:
+				energy_terms[line.split('...')[0].strip()] = parts[parts.index('Eh') - 1]
+		if {'Electronic energy', 'Zero point energy', 'Total thermal energy', 'Total Enthalpy', 'Final Gibbs free energy'} <= energy_terms.keys():
+			thermochemistry = {
+				'Sum of electronic and zero-point Energies': f"{float(energy_terms['Electronic energy']) + float(energy_terms['Zero point energy']):.8f}",
+				'Sum of electronic and thermal Energies': energy_terms['Total thermal energy'],
+				'Sum of electronic and thermal Enthalpies': energy_terms['Total Enthalpy'],
+				'Sum of electronic and thermal Free Energies': energy_terms['Final Gibbs free energy'],
+			}
 
 	#Orbitals section
 	if jobtype == 'opt' or jobtype == 'tddft':
@@ -186,7 +208,6 @@ def analyzer(filename):
 				for block in state_blocks
 			]
 			for t in range(states_section_start, tddft_section_end):
-				states.append(calc_output[t].strip().split()) #evtl rausnehmen
 				energies.append(float(calc_output[t].strip().split()[3]))
 				wavelengths.append(float(calc_output[t].strip().split()[5]))
 				f_osc.append(format(float(calc_output[t].strip().split()[6]),'.2f'))
@@ -216,11 +237,17 @@ def analyzer(filename):
 			print(f'LUMO Number: {lumo_number+1} (ORCA Orbital Count: {lumo_number})')
 			print(f'LUMO Energy: {orbitals[lumo_number][2]} Hartree')
 		if jobtype == 'tddft':
-			#print('States: ', states)
 			print(f'Only listing orbital contributions > {filter_coeff} (at least the largest one per state).')
 			print('State blocks:', state_blocks)
 			print('Energies (eV):', energies)
 			print('Wavelengths (nm):', wavelengths)
 			print('f_osc:', f_osc)
 
-	return file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords, state_blocks, energies, wavelengths, f_osc
+	#HOMO counted from 0 for the alpha (a) and beta (b) electrons, closed shell: ''
+	homo = {}
+	if electrons:
+		alpha = (electrons + int(multiplicity) - 1) // 2
+		homo = {'': alpha - 1, 'a': alpha - 1, 'b': electrons - alpha - 1}
+
+	return CalcData(filename, basis_set=basis_set, charge=charge, multiplicity=multiplicity, total_energy=total_energy, jobtype=jobtype, imaginary_freqs=imaginary_freqs,
+		thermochemistry=thermochemistry, coords=coords, homo=homo, state_blocks=state_blocks, energies=energies, wavelengths=wavelengths, f_osc=f_osc)

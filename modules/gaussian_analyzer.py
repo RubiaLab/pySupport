@@ -1,5 +1,6 @@
 import os
 import re
+from modules.calc_data import CalcData
 
 def route_keywords(route):
 	#Keyword names of a route section, e.g. '#p opt=(ts,calcfc) freq b3lyp/6-31g(d) stable=opt' -> {'p', 'opt', 'freq', 'b3lyp', '6-31g', 'stable'}
@@ -27,7 +28,8 @@ def analyzer(filename):
 
 	freqs = []
 	imaginary_freqs = []
-	states = []
+	thermochemistry = {}
+	homo = {}
 	state_blocks = []
 	energies = []
 	wavelengths = []
@@ -101,6 +103,16 @@ def analyzer(filename):
 		if 'SCF Done:' in line:
 			total_energy = line.split()[4]
 
+		#Determine HOMO counted from 0 for the alpha (a) and beta (b) electrons, closed shell: ''
+		if 'alpha electrons' in line and 'beta electrons' in line:
+			alpha, beta = int(line.split()[0]), int(line.split()[3])
+			homo = {'': alpha - 1, 'a': alpha - 1, 'b': beta - 1}
+
+		#Determine thermochemistry of a frequency calculation
+		if line.strip().startswith('Sum of electronic and'):
+			term, value = line.split('=')
+			thermochemistry[term.strip()] = value.split()[0]
+
 		#Determine coordinates Gaussian
 		if 'Standard orientation:' in line:
 			geo_start_line = j
@@ -114,7 +126,6 @@ def analyzer(filename):
 	if geo_start_line is not None:
 		for m in range(geo_start_line + 5, len(calc_output)):
 			if '--------' in calc_output[m]:
-				geo_end_line = m
 				break
 			parts = calc_output[m].split()
 			if len(parts) < 6:
@@ -185,4 +196,5 @@ def analyzer(filename):
 			print('Wavelengths (nm):', wavelengths)
 			print('f_osc:', f_osc)
 
-	return file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords, state_blocks, energies, wavelengths, f_osc
+	return CalcData(filename, basis_set=basis_set, charge=charge, multiplicity=multiplicity, total_energy=total_energy, jobtype=jobtype, imaginary_freqs=imaginary_freqs,
+		thermochemistry=thermochemistry, coords=coords, homo=homo, state_blocks=state_blocks, energies=energies, wavelengths=wavelengths, f_osc=f_osc)

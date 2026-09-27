@@ -39,6 +39,7 @@ Your calculation utilizes the basis: def2-SVP
 
  Total Charge           Charge          ....    0
  Multiplicity           Mult            ....    1
+ Number of Electrons    NEL             ....   10
 
 ----------------
 ORBITAL ENERGIES

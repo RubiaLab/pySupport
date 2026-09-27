@@ -34,10 +34,11 @@ def main():
 
 	si_style = int(input('Please enter a number for the SI style: '))
 
-	#Generate Excel workbook
+	#Generate Excel workbook, it is saved next to the first input file
 	if si_style in [4, 5, 6]:
 		import openpyxl
 		SI_workbook = openpyxl.Workbook()
+		xlsx_file = None
 
 	for filename in sys.argv[1:]:
 
@@ -78,31 +79,31 @@ def main():
 		print('Program version: ', program_version)
 
 		#Calculation file analysis (None if the calculation did not terminate normally)
-		calc_data = fa.analyzer(filename)
-		if calc_data is None:
+		data = fa.analyzer(filename)
+		if data is None:
 			continue
-		file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords, state_blocks, energies, wavelengths, f_osc = calc_data
 
-		#SI file generation
+		#SI file generation next to the input file
 		if si_style in [1, 2, 3]:
-			txt.generate_txt(si_style, file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords, state_blocks, energies, wavelengths, f_osc)
-			print(f'File "{filename.strip()[:-3]}txt" for Supporting Information saved in the same directory.')
+			txt.generate_txt(si_style, data)
+			print(f'File "{data.output_base}.txt" for Supporting Information saved.')
 		elif si_style in [4, 5, 6]:
-			xlsx.generate_xlsx(si_style, SI_workbook, file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords, state_blocks, energies, wavelengths, f_osc)
+			xlsx.generate_xlsx(si_style, SI_workbook, data)
+			xlsx_file = xlsx_file or os.path.join(os.path.dirname(data.filename), 'SI_output.xlsx')
 		elif si_style in [7, 8, 9]:
-			tex.generate_tex(si_style, file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords, state_blocks, energies, wavelengths, f_osc)
-			print(f'File "{file.strip()[:-3]}tex" for Supporting Information saved in the same directory.')
+			tex.generate_tex(si_style, data)
+			print(f'File "{data.output_base}.tex" for Supporting Information saved.')
 		elif si_style in [10, 11]:
-			xyz.generate_xyz(si_style, file, coords)
-			print(f'File "{file.strip()[:-3]}xyz" saved in the same directory.')
+			xyz.generate_xyz(si_style, data)
+			print(f'File "{data.output_base}.xyz" saved.')
 
 	if si_style in [4, 5, 6]:
 		#Remove first empty worksheet
 		del SI_workbook['Sheet']
 		# Save xlsx file (only if at least one worksheet was generated)
 		if SI_workbook.sheetnames:
-			SI_workbook.save('SI_output.xlsx')
-			print('Files for Supporting Information saved as "SI_output.xlsx" in the same directory.')
+			SI_workbook.save(xlsx_file)
+			print(f'Files for Supporting Information saved as "{xlsx_file}".')
 		else:
 			print('No worksheets were generated, "SI_output.xlsx" was not written.')
 	print('### Exiting pySupport ###')

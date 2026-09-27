@@ -52,6 +52,7 @@
      12          1           0        0.000000    2.446318    0.000000
  ---------------------------------------------------------------------
  Standard basis: 6-31G(d) (6D, 7F)
+    22 alpha electrons       20 beta electrons
  SCF Done:  E(UB3LYP) =  -232.044733657     A.U. after   12 cycles
  Excitation energies and oscillator strengths:
  
