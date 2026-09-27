@@ -169,14 +169,15 @@ def analyzer(filename):
 				parts = line.split()
 				if parts[0] == 'STATE':
 					state_blocks.append([])
-				elif state_blocks:
+				elif state_blocks and len(parts) >= 5 and parts[1] == '->':
 					try:
-						from_orb = int(parts[0][:-1])
-						to_orb = int(parts[2][:-1])
-						coeff = float(parts[4])
-						state_blocks[-1].append([from_orb, to_orb, coeff])
-					except (IndexError, ValueError):
+						state_blocks[-1].append([parts[0], parts[2], float(parts[4])])
+					except ValueError:
 						continue
+
+			#Closed shell: all orbitals are alpha orbitals (a), so the label is dropped. Open shell: a/b are kept like in the ORCA output.
+			if is_closed and not any(entry[0].endswith('b') for block in state_blocks for entry in block):
+				state_blocks = [[[entry[0].removesuffix('a'), entry[1].removesuffix('a'), entry[2]] for entry in block] for block in state_blocks]
 
 			#Keep the contributions above filter_coeff, but at least the largest one, so that no state is dropped
 			filter_coeff = 0.05

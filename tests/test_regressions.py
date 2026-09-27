@@ -1,7 +1,8 @@
 #Regression tests for pySupport
 #
-#The files in tests/fixtures are small synthetic excerpts that mimic the layout of ORCA 6 and
-#Gaussian 16 output files. They only contain the sections pySupport reads.
+#The files in tests/fixtures only contain the sections of ORCA 6 and Gaussian 16 output files that
+#pySupport reads. orca_tddft_triplet.out, gaussian_tddft_triplet.out and gaussian_freq.out are trimmed
+#real outputs (benzene, B3LYP/6-31G(d)), the other files are synthetic.
 #
 #Run from the repository root (Python >= 3.12):
 #	python3 -m unittest discover -s tests -v
@@ -92,7 +93,12 @@ class OrcaAnalyzerTest(unittest.TestCase):
 	def test_tddft_states_stay_aligned_with_their_energies(self):
 		#State 2 has no contribution > 0.05 and keeps its largest one, the last line of state 3 must not be cut off
 		data = analyze(orca_analyzer.analyzer, fixture('orca_tddft.out'))
-		self.assertEqual(data['state_blocks'], [[[4, 5, 0.99438]], [[2, 5, 0.04]], [[3, 5, 0.88], [4, 6, 0.1]]])
+		self.assertEqual(data['state_blocks'], [[['4', '5', 0.99438]], [['2', '5', 0.04]], [['3', '5', 0.88], ['4', '6', 0.1]]])
+		self.assertEqual(len(data['state_blocks']), len(data['energies']))
+
+	def test_tddft_open_shell_keeps_spin_labels(self):
+		data = analyze(orca_analyzer.analyzer, fixture('orca_tddft_triplet.out'))
+		self.assertEqual(data['state_blocks'][0], [['21a', '22a', 0.493365], ['19b', '20b', 0.502866]])
 		self.assertEqual(len(data['state_blocks']), len(data['energies']))
 
 
@@ -111,6 +117,30 @@ class GaussianAnalyzerTest(TempDirTestCase):
 		self.assertEqual(data['basis_set'], 'genecp')
 		gen = self.modified_fixture('gaussian_genecp.out', 'gen.out', 'b3lyp/genecp', 'b3lyp/gen')
 		self.assertEqual(analyze(gaussian_analyzer.analyzer, gen)['basis_set'], 'gen')
+
+	def test_frequencies_include_the_first_line(self):
+		#The first "Frequencies --" line holds the lowest modes, i.e. the imaginary ones
+		ts = self.modified_fixture('gaussian_freq.out', 'ts.out', 'Frequencies --    307.3016', 'Frequencies --   -307.3016')
+		self.assertEqual(analyze(gaussian_analyzer.analyzer, ts)['imaginary_freqs'], ['-307.3016'])
+
+	def test_tddft_restricted_in_orca_format(self):
+		#Orbitals counted from 0, weight 2c² (restricted), de-excitations (<-) skipped, weights <= 0.05 filtered
+		data = analyze(gaussian_analyzer.analyzer, fixture('gaussian_tddft_singlet.out'))
+		blocks = [[[a, b, round(w, 4)] for a, b, w in block] for block in data['state_blocks']]
+		self.assertEqual(blocks, [[['19', '22', 0.3811], ['20', '21', 0.6119]], [['19', '21', 0.497], ['20', '22', 0.497]], [['19', '21', 0.9828]]])
+
+	def test_tddft_unrestricted_in_orca_format(self):
+		data = analyze(gaussian_analyzer.analyzer, fixture('gaussian_tddft_triplet.out'))
+		self.assertEqual(len(data['state_blocks']), 20)
+		self.assertEqual(len(data['energies']), 20)
+		self.assertEqual(data['state_blocks'][0], [['21a', '22a', 0.71274 ** 2], ['19b', '20b', 0.72053 ** 2]])
+
+	def test_tddft_orbital_labels_match_orca(self):
+		#Same molecule (benzene triplet, B3LYP/6-31G(d)): the lowest states have the same orbital labels in both programs
+		labels = lambda data: [[entry[:2] for entry in block] for block in data['state_blocks'][:5]]
+		gaussian = analyze(gaussian_analyzer.analyzer, fixture('gaussian_tddft_triplet.out'))
+		orca = analyze(orca_analyzer.analyzer, fixture('orca_tddft_triplet.out'))
+		self.assertEqual(labels(gaussian), labels(orca))
 
 	def test_element_symbols(self):
 		rule = ' ' + '-' * 69

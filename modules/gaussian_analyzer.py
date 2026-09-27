@@ -1,5 +1,13 @@
 import os
 
+def orca_style_contribution(from_label, to_label, coeff):
+	#Same format as ORCA: orbitals counted from 0 and weights instead of CI coefficients
+	if from_label[-1] in 'AB':
+		#Unrestricted: orbitals labelled a/b like in ORCA, the squared coefficients add up to 1
+		return [f'{int(from_label[:-1]) - 1}{from_label[-1].lower()}', f'{int(to_label[:-1]) - 1}{to_label[-1].lower()}', coeff ** 2]
+	#Restricted closed shell: only the alpha part is printed, the squared coefficients add up to 0.5
+	return [str(int(from_label) - 1), str(int(to_label) - 1), 2 * coeff ** 2]
+
 def analyzer(filename):
 	print('Running Gaussian analyzer...')
 
@@ -107,27 +115,15 @@ def analyzer(filename):
 		for m in range(len(calc_output)):
 			if 'Harmonic frequencies' in calc_output[m]:
 				break
-		freq_start = m + 7
-		print(freq_start)
 
-		for n in range(freq_start, len(calc_output)):
+		#All values of the "Frequencies --" lines after the header (up to three modes per line)
+		for n in range(m, len(calc_output)):
 			if 'Frequencies --' in calc_output[n]:
-				try:
-					freqs.append(calc_output[n].split()[2])
-					freqs.append(calc_output[n].split()[3])
-					freqs.append(calc_output[n].split()[4])
-					if float(calc_output[n].split()[2]) < 0:
-						imaginary_freqs.append(calc_output[n].split()[2])
-					if float(calc_output[n].split()[3]) < 0:
-						imaginary_freqs.append(calc_output[n].split()[3])
-					if float(calc_output[n].split()[4]) < 0:
-						imaginary_freqs.append(calc_output[n].split()[4])
-				except:
-					continue
+				freqs.extend(calc_output[n].split()[2:])
+		imaginary_freqs = [freq for freq in freqs if float(freq) < 0]
 
 	# TD-DFT section
 	if jobtype == 'tddft':
-		current_block = []
 		for r in range(len(calc_output)):
 			if 'Excited State' in calc_output[r]:
 				tddft_section_start = r
@@ -143,24 +139,23 @@ def analyzer(filename):
 				continue  # überspringt leere Zeilen
 			parts = line.split()
 			if parts[0] == 'Excited' and 'State' in parts[1]:
-				print(str(s) + calc_output[s])
-				energies.append(float(calc_output[s].strip().split()[4]))
-				wavelengths.append(float(calc_output[s].strip().split()[6]))
-				f_osc.append(format(float(calc_output[s].strip().split()[8][2:]),'.2f'))
-				if current_block:
-					state_blocks.append(current_block)
-					current_block = []
-			else:
+				energies.append(float(parts[4]))
+				wavelengths.append(float(parts[6]))
+				f_osc.append(format(float(parts[8][2:]),'.2f'))
+				state_blocks.append([])
+			#Excitations "i -> a" only, de-excitations "i <- a" are skipped
+			elif state_blocks and len(parts) == 4 and parts[1] == '->':
 				try:
-					from_orb = int(parts[0])
-					to_orb = int(parts[2])
-					coeff = float(parts[3]) ** 2 * 100
-					current_block.append([from_orb, to_orb, coeff])
-				except (IndexError, ValueError):
+					state_blocks[-1].append(orca_style_contribution(parts[0], parts[2], float(parts[3])))
+				except ValueError:
 					continue
 
-		if current_block:
-			state_blocks.append(current_block)		
+		#Keep the contributions above filter_coeff, but at least the largest one, so that no state is dropped
+		filter_coeff = 0.05
+		state_blocks = [
+			[entry for entry in block if abs(entry[2]) > filter_coeff] or sorted(block, key=lambda entry: abs(entry[2]))[-1:]
+			for block in state_blocks
+		]
 
 	print('Jobtype: ', jobtype)
 	print('Basis set: ', basis_set)
