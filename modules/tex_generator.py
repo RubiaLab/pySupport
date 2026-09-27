@@ -11,210 +11,91 @@ def write_page_head(si_out, column_header):
 	si_out.write(r'\hline' + '\n')
 	si_out.write(r'\endfoot' + '\n')
 
-def write_tddft_table(si_out, state_blocks, energies, wavelengths, f_osc):
+def write_tddft_table(si_out, data):
 	#TD-DFT summary in its own table below the coordinates
-	tddft_header = r'\hline' + '\n' + r'\textbf{State} & \textbf{Orbital Contribution} & \textbf{Energy (eV)} & \textbf{Wavelength (nm)} & \textbf{$f_{osc}$} \\ \hline'
-	si_out.write(r'\begin{longtable}{ccccc}' + '\n')
+	tddft_header = r'\hline' + '\n' + r'\textbf{State} & \textbf{Orbital Contribution} & \textbf{HOMO/LUMO} & \textbf{Energy (eV)} & \textbf{Wavelength (nm)} & \textbf{$f_{osc}$} \\ \hline'
+	si_out.write(r'\begin{longtable}{cccccc}' + '\n')
 	si_out.write(tddft_header + '\n')
 	write_page_head(si_out, tddft_header)
-	for n in range(len(state_blocks)):
-		for m in range(len(state_blocks[n])):
-			state_str = f'{n+1}' if m == 0  else ''
-			energy_str = f'{format(energies[n], '.2f')}' if m == 0 else ''
-			wavelength_str = f'{format(wavelengths[n], '.1f')}' if m == 0 else ''
-			f_osc_str = f'{f_osc[n]}' if m == 0 else ''
-			si_out.write(f'{state_str} & {state_blocks[n][m][0]} ')
+	for n in range(len(data.state_blocks)):
+		for m, contribution in enumerate(data.state_blocks[n]):
+			state_str = f'{n+1}' if m == 0 else ''
+			energy_str = f'{data.energies[n]:.2f}' if m == 0 else ''
+			wavelength_str = f'{data.wavelengths[n]:.1f}' if m == 0 else ''
+			f_osc_str = f'{data.f_osc[n]}' if m == 0 else ''
+			homo_lumo = data.homo_lumo(contribution, r'$\rightarrow$')
+			si_out.write(f'{state_str} & {contribution[0]} ')
 			si_out.write(r'$\rightarrow$ ')
-			si_out.write(f'{state_blocks[n][m][1]} ({format(state_blocks[n][m][2], '.3f')}) & {energy_str} & {wavelength_str} & {f_osc_str}')
+			si_out.write(f'{contribution[1]} ({contribution[2]:.3f}) & {homo_lumo} & {energy_str} & {wavelength_str} & {f_osc_str}')
 			si_out.write(r'\\' + '\n')
 	si_out.write(r'\end{longtable}' + '\n')
 
-def generate_tex(si_style, file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords, state_blocks, energies, wavelengths, f_osc):
-	if si_style == 7:
+def generate_tex(si_style, data):
+	if si_style == 7 or si_style == 8:
 		print('under construction')
-		print('Generating .tex file ...')
-		
-		si_out = open(f'{file.strip()[:-3]}tex', 'w')
-		si_out.write(r'\documentclass{article}' + '\n')
-		si_out.write(r'\usepackage[a4paper]{geometry}' + '\n')
-		si_out.write(r'\usepackage{multirow}' + '\n')
-		si_out.write(r'\usepackage{longtable}' + '\n')
-		si_out.write('\\begin{document}' + '\n')
-		si_out.write(r'\centering' + '\n')
+	print('Generating .tex file ...')
+
+	si_out = open(f'{data.output_base}.tex', 'w')
+	si_out.write(r'\documentclass{article}' + '\n')
+	si_out.write(r'\usepackage[a4paper]{geometry}' + '\n')
+	si_out.write(r'\usepackage{multirow}' + '\n')
+	si_out.write(r'\usepackage{longtable}' + '\n')
+	si_out.write('\\begin{document}' + '\n')
+	si_out.write(r'\centering' + '\n')
+
+	#Full (7) and Simple (8): calculation details next to a space for a picture of the molecule, two atoms per row
+	if si_style == 7 or si_style == 8:
 		si_out.write(r'\begin{longtable}{ccclcccc}' + '\n')
 		si_out.write(r'\hline' + '\n')
 		si_out.write(r'\multicolumn{8}{c}{\textbf{')
-		si_out.write(f'{tex_escape(file)}')
+		si_out.write(f'{tex_escape(data.file)}')
 		si_out.write(r'}} \\ \hline' + '\n')
-		si_out.write(r'\multicolumn{3}{c}{\multirow{8}{*}{}} & \multicolumn{5}{l}{Basis set: ')
-		si_out.write(f'{tex_escape(basis_set)}')
-		si_out.write(r'} \\' + '\n')
-		si_out.write(r'\multicolumn{3}{c}{} & \multicolumn{5}{l}{')
-		si_out.write(f'Charge = {charge}, Multiplicity = {multiplicity}')
-		si_out.write(r'} \\' + '\n')
-		si_out.write(r'\multicolumn{3}{c}{} & \multicolumn{5}{l}{')
-		si_out.write(f'Electronic Energy = {total_energy} Hartree')
-		si_out.write(r'} \\' + '\n')
-		if jobtype == 'opt+freq' or jobtype == 'freq':
-			if len(imaginary_freqs) == 0:
-				si_out.write(r'\multicolumn{3}{c}{} & \multicolumn{5}{l}{Number of imaginary frequencies = 0} \\' +  '\n')
+
+		details = [f'Basis set: {tex_escape(data.basis_set)}', f'Charge = {data.charge}, Multiplicity = {data.multiplicity}', f'Electronic Energy = {data.total_energy} Hartree']
+		if si_style == 7 and (data.jobtype == 'opt+freq' or data.jobtype == 'freq'):
+			if len(data.imaginary_freqs) == 0:
+				details.append('Number of imaginary frequencies = 0')
 			else:
-				si_out.write(r'\multicolumn{3}{c}{} & \multicolumn{5}{l}{')
-				si_out.write(f'Number of imaginary frequencies = {len(imaginary_freqs)}, ')
-				si_out.write(r'$\nu_{i}$ = ')
-				si_out.write(f'{', '.join(imaginary_freqs)} ')
-				si_out.write(r'cm$^{-1}$} \\' +  '\n')
-		if len(coords) > 0:
-			si_out.write(r'\multicolumn{3}{c}{} & \multicolumn{5}{l}{} \\' + '\n')
-			si_out.write(r'\multicolumn{3}{c}{} & \multicolumn{5}{l}{} \\' + '\n')
-			si_out.write(r'\multicolumn{3}{c}{} & \multicolumn{5}{l}{} \\' + '\n')
-			si_out.write(r'\multicolumn{3}{c}{} & \multicolumn{5}{l}{} \\' + '\n')
+				details.append(f'Number of imaginary frequencies = {len(data.imaginary_freqs)}, ' + r'$\nu_{i}$ = ' + f'{', '.join(data.imaginary_freqs)} ' + r'cm$^{-1}$')
+			details += [f'{term} = {energy} Hartree' for term, energy in data.thermochemistry.items()]
+		#The space for the picture spans eight rows
+		details += [''] * (8 - len(details))
+		si_out.write(r'\multicolumn{3}{c}{\multirow{8}{*}{}} & \multicolumn{5}{l}{' + details[0] + r'} \\' + '\n')
+		for detail in details[1:]:
+			si_out.write(r'\multicolumn{3}{c}{} & \multicolumn{5}{l}{' + detail + r'} \\' + '\n')
+
+		if len(data.coords) > 0:
 			coords_header = r'\hline & \multicolumn{3}{c}{\textbf{Cartesian Coordinates (\r{A})}} &  & \multicolumn{3}{c}{\textbf{Cartesian Coordinates (\r{A})}} \\ \cline{2-4} \cline{6-8} \textbf{Atoms} & \textit{\textbf{X}} & \textit{\textbf{Y}} & \multicolumn{1}{c}{\textit{\textbf{Z}}} & \textbf{Atoms} & \textit{\textbf{X}} & \textit{\textbf{Y}} & \textit{\textbf{Z}} \\ \hline'
 			si_out.write(coords_header + '\n')
 			write_page_head(si_out, coords_header)
 
-			if len(coords) % 2 == 0:
-				tex_coordsLineNumber = int(len(coords) / 2)
-				for r in range(0, len(coords), 2):
-					si_out.write(f'{coords[r].split()[0]} & ')
-					si_out.write(f'{coords[r].split()[1]} & ')
-					si_out.write(f'{coords[r].split()[2]} & ')
-					si_out.write(f'{coords[r].split()[3]} & ')
-					si_out.write(f'{coords[r+1].split()[0]} & ')
-					si_out.write(f'{coords[r+1].split()[1]} & ')
-					si_out.write(f'{coords[r+1].split()[2]} & ')
-					si_out.write(f'{coords[r+1].split()[3]}')
-					si_out.write(r'\\')
-					si_out.write('\n')
-			elif len(coords) % 2 == 1:
-				tex_coordsLineNumber = int((len(coords) + 1) / 2)
-				for r in range(0, len(coords) - 1, 2):
-					si_out.write(f'{coords[r].split()[0]} & ')
-					si_out.write(f'{coords[r].split()[1]} & ')
-					si_out.write(f'{coords[r].split()[2]} & ')
-					si_out.write(f'{coords[r].split()[3]} & ')
-					si_out.write(f'{coords[r+1].split()[0]} & ')
-					si_out.write(f'{coords[r+1].split()[1]} & ')
-					si_out.write(f'{coords[r+1].split()[2]} & ')
-					si_out.write(f'{coords[r+1].split()[3]}')
-					si_out.write(r'\\' + '\n')
-				si_out.write(f'{coords[-1].split()[0]} & ')
-				si_out.write(f'{coords[-1].split()[1]} & ')
-				si_out.write(f'{coords[-1].split()[2]} & ')
-				si_out.write(f'{coords[-1].split()[3]} & & & & ')
+			atoms = data.atoms()
+			for r in range(0, len(atoms), 2):
+				if r + 1 < len(atoms):
+					si_out.write(' & '.join(atoms[r] + atoms[r + 1]))
+				else:
+					si_out.write(' & '.join(atoms[r]) + ' & & & & ')
 				si_out.write(r'\\' + '\n')
-		si_out.write(r'\end{longtable}' + '\n')
-		if jobtype == 'tddft':
-			write_tddft = input('Write TD-DFT summary ([yes]/no)? ') or ('yes')
-			if write_tddft == 'yes':
-				print('Writing TD-DFT summary...')
-				write_tddft_table(si_out, state_blocks, energies, wavelengths, f_osc)
-		si_out.write(r'\end{document}' + '\n')
-		si_out.close()
 
-	elif si_style == 8:
-		print('under construction')
-		print('Generating .tex file ...')
-
-		si_out = open(f'{file.strip()[:-3]}tex', 'w')
-		si_out.write(r'\documentclass{article}' + '\n')
-		si_out.write(r'\usepackage[a4paper]{geometry}' + '\n')
-		si_out.write(r'\usepackage{multirow}' + '\n')
-		si_out.write(r'\usepackage{longtable}' + '\n')
-		si_out.write('\\begin{document}' + '\n')
-		si_out.write(r'\centering' + '\n')
-		si_out.write(r'\begin{longtable}{ccclcccc}' + '\n')
-		si_out.write(r'\hline' + '\n')
-		si_out.write(r'\multicolumn{8}{c}{\textbf{')
-		si_out.write(f'{tex_escape(file)}')
-		si_out.write(r'}} \\ \hline' + '\n')
-		si_out.write(r'\multicolumn{3}{c}{\multirow{8}{*}{}} & \multicolumn{5}{l}{Basis set: ')
-		si_out.write(f'{tex_escape(basis_set)}')
-		si_out.write(r'} \\' + '\n')
-		si_out.write(r'\multicolumn{3}{c}{} & \multicolumn{5}{l}{')
-		si_out.write(f'Charge = {charge}, Multiplicity = {multiplicity}')
-		si_out.write(r'} \\' + '\n')
-		si_out.write(r'\multicolumn{3}{c}{} & \multicolumn{5}{l}{')
-		si_out.write(f'Electronic Energy = {total_energy} Hartree')
-		si_out.write(r'} \\' + '\n')
-		si_out.write(r'\multicolumn{3}{c}{} & \multicolumn{5}{l}{} \\' +  '\n')
-		si_out.write(r'\multicolumn{3}{c}{} & \multicolumn{5}{l}{} \\' + '\n')
-		si_out.write(r'\multicolumn{3}{c}{} & \multicolumn{5}{l}{} \\' + '\n')
-		si_out.write(r'\multicolumn{3}{c}{} & \multicolumn{5}{l}{} \\' + '\n')
-		si_out.write(r'\multicolumn{3}{c}{} & \multicolumn{5}{l}{} \\' + '\n')
-		coords_header = r'\hline & \multicolumn{3}{c}{\textbf{Cartesian Coordinates (\r{A})}} &  & \multicolumn{3}{c}{\textbf{Cartesian Coordinates (\r{A})}} \\ \cline{2-4} \cline{6-8} \textbf{Atoms} & \textit{\textbf{X}} & \textit{\textbf{Y}} & \multicolumn{1}{c}{\textit{\textbf{Z}}} & \textbf{Atoms} & \textit{\textbf{X}} & \textit{\textbf{Y}} & \textit{\textbf{Z}} \\ \hline'
-		si_out.write(coords_header + '\n')
-		write_page_head(si_out, coords_header)
-
-		if len(coords) % 2 == 0:
-			tex_coordsLineNumber = int(len(coords) / 2)
-			for r in range(0, len(coords), 2):
-				si_out.write(f'{coords[r].split()[0]} & ')
-				si_out.write(f'{coords[r].split()[1]} & ')
-				si_out.write(f'{coords[r].split()[2]} & ')
-				si_out.write(f'{coords[r].split()[3]} & ')
-				si_out.write(f'{coords[r+1].split()[0]} & ')
-				si_out.write(f'{coords[r+1].split()[1]} & ')
-				si_out.write(f'{coords[r+1].split()[2]} & ')
-				si_out.write(f'{coords[r+1].split()[3]}')
-				si_out.write(r'\\')
-				si_out.write('\n')
-		elif len(coords) % 2 == 1:
-			tex_coordsLineNumber = int((len(coords) + 1) / 2)
-			for r in range(0, len(coords) - 1, 2):
-				si_out.write(f'{coords[r].split()[0]} & ')
-				si_out.write(f'{coords[r].split()[1]} & ')
-				si_out.write(f'{coords[r].split()[2]} & ')
-				si_out.write(f'{coords[r].split()[3]} & ')
-				si_out.write(f'{coords[r+1].split()[0]} & ')
-				si_out.write(f'{coords[r+1].split()[1]} & ')
-				si_out.write(f'{coords[r+1].split()[2]} & ')
-				si_out.write(f'{coords[r+1].split()[3]}')
-				si_out.write(r'\\' + '\n')
-			si_out.write(f'{coords[-1].split()[0]} & ')
-			si_out.write(f'{coords[-1].split()[1]} & ')
-			si_out.write(f'{coords[-1].split()[2]} & ')
-			si_out.write(f'{coords[-1].split()[3]} & & & & ')
-			si_out.write(r'\\' + '\n')
-		si_out.write(r'\end{longtable}' + '\n')
-		if jobtype == 'tddft':
-			write_tddft = input('Write TD-DFT summary ([yes]/no)? ') or ('yes')
-			if write_tddft == 'yes':
-				print('Writing TD-DFT summary...')
-				write_tddft_table(si_out, state_blocks, energies, wavelengths, f_osc)
-		si_out.write(r'\end{document}' + '\n')
-		si_out.close()
-
+	#Coordinates only (9): one atom per row
 	elif si_style == 9:
-		print('Generating .tex file ...')
-
-		si_out = open(f'{file.strip()[:-3]}tex', 'w')
-		si_out.write(r'\documentclass{article}' + '\n')
-		si_out.write(r'\usepackage[a4paper]{geometry}' + '\n')
-		si_out.write(r'\usepackage{multirow}' + '\n')
-		si_out.write(r'\usepackage{longtable}' + '\n')
-		si_out.write('\\begin{document}' + '\n')
-		si_out.write(r'\centering' + '\n')
 		si_out.write(r'\begin{longtable}{cccc} \hline' + '\n')
 		si_out.write(r'\multicolumn{4}{c}{\textbf{')
-		si_out.write(f'{tex_escape(file)}')
+		si_out.write(f'{tex_escape(data.file)}')
 		si_out.write(r'}} \\ \hline' + '\n')
 		coords_header = r' & \multicolumn{3}{c}{\textbf{Cartesian Coordinates (\r{A})}} \\ \cline{2-4} \\ \textbf{Atoms} & \textit{\textbf{X}} & \textit{\textbf{Y}} & \textit{\textbf{Z}} \\ \hline'
 		si_out.write(coords_header + '\n')
 		write_page_head(si_out, r'\hline' + coords_header)
 
-		for n in range(len(coords)):
-			si_out.write(f'{coords[n].split()[0]} & ')
-			si_out.write(f'{coords[n].split()[1]} & ')
-			si_out.write(f'{coords[n].split()[2]} & ')
-			si_out.write(f'{coords[n].split()[3]} ')
+		for atom in data.atoms():
+			si_out.write(' & '.join(atom) + ' ')
 			si_out.write(r'\\' + '\n')
-		
-		si_out.write(r'\end{longtable}' + '\n')
-		if jobtype == 'tddft':
-			write_tddft = input('Write TD-DFT summary ([yes]/no)? ') or ('yes')
-			if write_tddft == 'yes':
-				print('Writing TD-DFT summary...')
-				write_tddft_table(si_out, state_blocks, energies, wavelengths, f_osc)
-		si_out.write(r'\end{document}' + '\n')
-		si_out.close()
+
+	si_out.write(r'\end{longtable}' + '\n')
+	if data.jobtype == 'tddft':
+		write_tddft = input('Write TD-DFT summary ([yes]/no)? ') or ('yes')
+		if write_tddft == 'yes':
+			print('Writing TD-DFT summary...')
+			write_tddft_table(si_out, data)
+	si_out.write(r'\end{document}' + '\n')
+	si_out.close()

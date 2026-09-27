@@ -34,6 +34,7 @@
      12          1           0        0.000000    2.446318    0.000000
  ---------------------------------------------------------------------
  Standard basis: 6-31G(d) (6D, 7F)
+    21 alpha electrons       21 beta electrons
  SCF Done:  E(RB3LYP) =  -232.229946264     A.U. after    9 cycles
  Full mass-weighted force constant matrix:
  Low frequencies --- -195.5869 -195.5857 -192.2738   -0.0037   -0.0032   -0.0013
@@ -235,4 +236,51 @@
     11   1     0.35   0.20  -0.00     0.35   0.21   0.00    -0.35  -0.20   0.00
     12   1    -0.00   0.56  -0.00    -0.01  -0.15  -0.00     0.00  -0.41  -0.00
 
+ -------------------
+ - Thermochemistry -
+ -------------------
+ Temperature   298.150 Kelvin.  Pressure   1.00000 Atm.
+ Atom     1 has atomic number  6 and mass  12.00000
+ Atom     2 has atomic number  6 and mass  12.00000
+ Atom     3 has atomic number  6 and mass  12.00000
+ Atom     4 has atomic number  6 and mass  12.00000
+ Atom     5 has atomic number  6 and mass  12.00000
+ Atom     6 has atomic number  6 and mass  12.00000
+ Atom     7 has atomic number  1 and mass   1.00783
+ Atom     8 has atomic number  1 and mass   1.00783
+ Atom     9 has atomic number  1 and mass   1.00783
+ Atom    10 has atomic number  1 and mass   1.00783
+ Atom    11 has atomic number  1 and mass   1.00783
+ Atom    12 has atomic number  1 and mass   1.00783
+ Molecular mass:    78.04695 amu.
+ Principal axes and moments of inertia in atomic units:
+                           1         2         3
+     Eigenvalues --   296.29012 296.29012 592.58023
+           X            0.99102   0.13369   0.00000
+           Y           -0.13369   0.99102   0.00000
+           Z            0.00000  -0.00000   1.00000
+ This molecule is an oblate symmetric top.
+ Rotational symmetry number  6.
+ Rotational temperatures (Kelvin)      0.29233     0.29233     0.14616
+ Rotational constants (GHZ):           6.09113     6.09113     3.04556
+ Zero-point vibrational energy     270156.3 (Joules/Mol)
+                                   64.56891 (Kcal/Mol)
+ Warning -- explicit consideration of   2 degrees of freedom as
+           vibrations may cause significant error
+ Vibrational temperatures:    442.14   442.14   908.28   908.28   961.42
+          (Kelvin)           1140.05  1363.79  1363.79  1470.28  1506.63
+                             1506.63  1573.36  1686.72  1686.72  1689.20
+                             1819.97  1851.19  1851.19  2079.14  2377.07
+                             2377.07  2407.61  2709.00  2709.00  4325.85
+                             4343.67  4343.67  4373.45  4373.45  4393.91
+ 
+ Zero-point correction=                           0.102897 (Hartree/Particle)
+ Thermal correction to Energy=                    0.107365
+ Thermal correction to Enthalpy=                  0.108309
+ Thermal correction to Gibbs Free Energy=         0.077052
+ Sum of electronic and zero-point Energies=           -232.127049
+ Sum of electronic and thermal Energies=              -232.122582
+ Sum of electronic and thermal Enthalpies=            -232.121637
+ Sum of electronic and thermal Free Energies=         -232.152895
+ 
  Normal termination of Gaussian 16 at Sun Sep 27 08:59:19 2026.
