@@ -187,7 +187,8 @@ def generate_xlsx(si_style, SI_workbook, data):
 			for n in range(len(data.state_blocks)):
 				start_row = row
 				end_row = row + len(data.state_blocks[n]) - 1
-				values = (n + 1,
+				state = data.state_label(n)
+				values = (int(state) if state.isdigit() else state,
 					'\n'.join(f'{contribution[0]} → {contribution[1]} ({contribution[2]:.3f})' for contribution in data.state_blocks[n]),
 					'\n'.join(data.homo_lumo(contribution, '→') for contribution in data.state_blocks[n]),
 					f'{data.energies[n]:.2f}', f'{data.wavelengths[n]:.1f}', f'{data.f_osc[n]}')

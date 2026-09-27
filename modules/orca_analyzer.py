@@ -1,4 +1,5 @@
 import os
+import re
 from modules.calc_data import CalcData
 
 def read_coords(calc_output, start):
@@ -36,9 +37,11 @@ def analyzer(filename):
 	orbitals_alpha = []
 	orbitals_beta = []
 	state_blocks = []
+	spins = []
 	is_closed = True
 	beta_marker = False
 	electrons = None
+	excitation_energy = None
 
 	#Determine input section
 	for i in range(len(calc_output)):
@@ -90,9 +93,11 @@ def analyzer(filename):
 			if int(multiplicity) > 1:
 				is_closed = False
 
-		#Determine total energy
+		#Determine total energy (TD-DFT: including the excitation energy DE(CIS) of the state IRoot)
 		if 'FINAL SINGLE POINT ENERGY' in line:
 			total_energy = line.split()[4]
+		if 'DE(CIS) =' in line:
+			excitation_energy = line.split()[2]
 
 		#Determine number of electrons
 		if 'Number of Electrons' in line and 'NEL' in line:
@@ -174,28 +179,54 @@ def analyzer(filename):
 					sumo_number = int(orbitals_alpha[q][0])
 					break
 		if jobtype == 'tddft':
-		# TD-DFT section
-			for r in range(len(calc_output)):
-				if 'EXCITED STATES' in calc_output[r]:
-					tddft_section_start = r + 7
-				if 'ABSORPTION SPECTRUM VIA TRANSITION ELECTRIC DIPOLE MOMENTS' in calc_output[r]:
-					states_section_start = r + 5
-				if 'ABSORPTION SPECTRUM VIA TRANSITION VELOCITY DIPOLE MOMENTS' in calc_output[r]:
-					tddft_section_end = r - 2
-
-			#Read every line up to the absorption spectrum header (one block per state)
-			for s in range(tddft_section_start-2, states_section_start-5):
-				line = calc_output[s].strip()
-				if not line:
-					continue  # überspringt leere Zeilen
+			#TD-DFT section: excited states of the last TD-DFT calculation (an optimization repeats it at every step).
+			#With triplets true the triplets follow the singlets in their own section. Every state is labelled like in the
+			#absorption spectrum: k-M for the k-th state of its section with multiplicity M.
+			states = []
+			spin = ''
+			k = 0
+			in_state = False
+			for line in calc_output:
 				parts = line.split()
-				if parts[0] == 'STATE':
-					state_blocks.append([])
-				elif state_blocks and len(parts) >= 5 and parts[1] == '->':
+				if re.search(r'EXCITED STATES( \(\w+\))?$', line.strip()):
+					if 'TRIPLETS' not in line:
+						states = []
+					spin = 'T' if 'TRIPLETS' in line else 'S' if 'SINGLETS' in line else ''
+					k = 0
+					in_state = False
+				elif re.match(r'STATE\s*\d+:', line):
+					k += 1
+					mult = parts[parts.index('Mult') + 1] if 'Mult' in parts else ''
+					states.append({'label': f'{k}-{mult}', 'spin': spin, 'contributions': []})
+					in_state = True
+				#The orbital contributions follow the state line, de-excitations (<-) are skipped
+				elif in_state and len(parts) >= 5 and parts[1] in ('->', '<-'):
 					try:
-						state_blocks[-1].append([parts[0], parts[2], float(parts[4])])
+						if parts[1] == '->':
+							states[-1]['contributions'].append([parts[0], parts[2], float(parts[4])])
 					except ValueError:
 						continue
+				else:
+					in_state = False
+
+			#Absorption spectrum of the last TD-DFT calculation, sorted by energy, e.g. '0-1A  ->  1-3A    4.187259   33772.5   296.1   0.000000000 ...'
+			spectrum_start = max((i for i, line in enumerate(calc_output) if line.strip() == 'ABSORPTION SPECTRUM VIA TRANSITION ELECTRIC DIPOLE MOMENTS'), default=len(calc_output)) + 5
+			spectrum = []
+			for line in calc_output[spectrum_start:]:
+				parts = line.split()
+				if len(parts) < 7 or parts[1] != '->':
+					break
+				spectrum.append(parts)
+
+			#Sort the states like the spectrum by their label (without matching labels they are already in the same order)
+			labels = [re.match(r'\d+-\d+', parts[2]) for parts in spectrum]
+			labels = [label.group() if label else '' for label in labels]
+			states_by_label = {state['label']: state for state in states}
+			if all(label in states_by_label for label in labels):
+				states = [states_by_label[label] for label in labels]
+			states = states[:len(spectrum)]
+			state_blocks = [state['contributions'] for state in states]
+			spins = [state['spin'] for state in states]
 
 			#Closed shell: all orbitals are alpha orbitals (a), so the label is dropped. Open shell: a/b are kept like in the ORCA output.
 			if is_closed and not any(entry[0].endswith('b') for block in state_blocks for entry in block):
@@ -207,10 +238,15 @@ def analyzer(filename):
 				[entry for entry in block if abs(entry[2]) > filter_coeff] or sorted(block, key=lambda entry: abs(entry[2]))[-1:]
 				for block in state_blocks
 			]
-			for t in range(states_section_start, tddft_section_end):
-				energies.append(float(calc_output[t].strip().split()[3]))
-				wavelengths.append(float(calc_output[t].strip().split()[5]))
-				f_osc.append(format(float(calc_output[t].strip().split()[6]),'.2f'))
+			for parts in spectrum:
+				energies.append(float(parts[3]))
+				wavelengths.append(float(parts[5]))
+				f_osc.append(format(float(parts[6]), '.2f'))
+
+	#The final single point energy of TD-DFT includes the excitation energy of the state IRoot. For a single point the
+	#ground state energy is given like in Gaussian, for an excited state optimization the energy of the optimized state.
+	if jobtype == 'tddft' and not opt_found and excitation_energy:
+		total_energy = f'{float(total_energy) - float(excitation_energy):.9f}'
 
 	print('Jobtype:', jobtype)
 	print('Basis set:', basis_set)
@@ -250,4 +286,4 @@ def analyzer(filename):
 		homo = {'': alpha - 1, 'a': alpha - 1, 'b': electrons - alpha - 1}
 
 	return CalcData(filename, basis_set=basis_set, charge=charge, multiplicity=multiplicity, total_energy=total_energy, jobtype=jobtype, imaginary_freqs=imaginary_freqs,
-		thermochemistry=thermochemistry, coords=coords, homo=homo, state_blocks=state_blocks, energies=energies, wavelengths=wavelengths, f_osc=f_osc)
+		thermochemistry=thermochemistry, coords=coords, homo=homo, state_blocks=state_blocks, spins=spins, energies=energies, wavelengths=wavelengths, f_osc=f_osc)

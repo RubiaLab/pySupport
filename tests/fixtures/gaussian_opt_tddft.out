@@ -1,0 +1,295 @@
+ Entering Gaussian System, Link 0=/usr/local/g16/g16
+ Cite this work as:
+ Gaussian 16, Revision A.03,
+ ******************************************
+ Gaussian 16:  ES64L-G16RevA.03 25-Dec-2016
+                27-Sep-2026 
+ ******************************************
+ %NProcShared=8
+ Will use up to    8 processors via shared memory.
+ ------------------------------------------
+ #N Opt TD(NStates=6,Root=1) B3LYP/6-31G(d)
+ ------------------------------------------
+ ----------------------------------------------------------------------
+ Benzene: geometry optimization of the first excited state S1 (pySuppor
+ t test, point 6)
+ ----------------------------------------------------------------------
+ Symbolic Z-matrix:
+ Charge =  0 Multiplicity = 1
+                          Input orientation:                          
+ ---------------------------------------------------------------------
+ Center     Atomic      Atomic             Coordinates (Angstroms)
+ Number     Number       Type             X           Y           Z
+ ---------------------------------------------------------------------
+      1          6           0        0.000000    1.396600    0.000000
+      2          6           0        1.209491    0.698300    0.000000
+      3          6           0        1.209491   -0.698300    0.000000
+      4          6           0        0.000000   -1.396600    0.000000
+      5          6           0       -1.209491   -0.698300    0.000000
+      6          6           0       -1.209491    0.698300    0.000000
+      7          1           0        0.000000    2.483600    0.000000
+      8          1           0        2.150861    1.241800    0.000000
+      9          1           0        2.150861   -1.241800    0.000000
+     10          1           0        0.000000   -2.483600    0.000000
+     11          1           0       -2.150861   -1.241800    0.000000
+     12          1           0       -2.150861    1.241800    0.000000
+ ---------------------------------------------------------------------
+                         Standard orientation:                         
+ ---------------------------------------------------------------------
+ Center     Atomic      Atomic             Coordinates (Angstroms)
+ Number     Number       Type             X           Y           Z
+ ---------------------------------------------------------------------
+      1          6           0        0.000000    1.396600   -0.000000
+      2          6           0        1.209491    0.698300   -0.000000
+      3          6           0        1.209491   -0.698300   -0.000000
+      4          6           0       -0.000000   -1.396600   -0.000000
+      5          6           0       -1.209491   -0.698300   -0.000000
+      6          6           0       -1.209491    0.698300   -0.000000
+      7          1           0        0.000000    2.483600   -0.000000
+      8          1           0        2.150861    1.241800   -0.000000
+      9          1           0        2.150861   -1.241800   -0.000000
+     10          1           0       -0.000000   -2.483600   -0.000000
+     11          1           0       -2.150861   -1.241800   -0.000000
+     12          1           0       -2.150861    1.241800   -0.000000
+ ---------------------------------------------------------------------
+ Standard basis: 6-31G(d) (6D, 7F)
+    21 alpha electrons       21 beta electrons
+ SCF Done:  E(RB3LYP) =  -232.248648824     A.U. after    9 cycles
+ Excitation energies and oscillator strengths:
+ 
+ Excited state symmetry could not be determined.
+ Excited State   1:      Singlet-?Sym    5.5437 eV  223.65 nm  f=0.0000  <S**2>=0.000
+      20 -> 22         0.49980
+      21 -> 23         0.49980
+ This state for optimization and/or second-order correction.
+ Total Energy, E(TD-HF/TD-DFT) =  -232.044920032    
+ Copying the excited state density for this state as the 1-particle RhoCI density.
+ 
+ Excited state symmetry could not be determined.
+ Excited State   2:      Singlet-?Sym    6.3067 eV  196.59 nm  f=0.0000  <S**2>=0.000
+      20 -> 23        -0.49833
+      21 -> 22         0.49833
+ 
+ Excited state symmetry could not be determined.
+ Excited State   3:      Singlet-?Sym    7.8734 eV  157.47 nm  f=0.0000  <S**2>=0.000
+      18 -> 23        -0.49854
+      19 -> 22         0.49854
+ 
+ Excited state symmetry could not be determined.
+ Excited State   4:      Singlet-?Sym    7.9798 eV  155.37 nm  f=0.0000  <S**2>=0.000
+      18 -> 23         0.49872
+      19 -> 22         0.49872
+ 
+ Excited state symmetry could not be determined.
+ Excited State   5:      Singlet-?Sym    7.9798 eV  155.37 nm  f=0.0000  <S**2>=0.000
+      18 -> 22         0.49872
+      19 -> 23        -0.49872
+ 
+ Excited state symmetry could not be determined.
+ Excited State   6:      Singlet-?Sym    7.9936 eV  155.10 nm  f=0.0056  <S**2>=0.000
+      18 -> 22         0.49907
+      19 -> 23         0.49908
+ SavETr:  write IOETrn=   770 NScale= 10 NData=  16 NLR=1 NState=    6 LETran=     118.
+ **********************************************************************
+
+            Population analysis using the SCF density.
+
+ **********************************************************************
+                          Input orientation:                          
+ ---------------------------------------------------------------------
+ Center     Atomic      Atomic             Coordinates (Angstroms)
+ Number     Number       Type             X           Y           Z
+ ---------------------------------------------------------------------
+      1          6           0       -0.000000    1.429262    0.000000
+      2          6           0        1.237777    0.714631    0.000000
+      3          6           0        1.237777   -0.714631    0.000000
+      4          6           0        0.000000   -1.429262    0.000000
+      5          6           0       -1.237777   -0.714631    0.000000
+      6          6           0       -1.237777    0.714631    0.000000
+      7          1           0       -0.000000    2.514865    0.000000
+      8          1           0        2.177937    1.257433    0.000000
+      9          1           0        2.177937   -1.257432    0.000000
+     10          1           0        0.000000   -2.514865    0.000000
+     11          1           0       -2.177937   -1.257433    0.000000
+     12          1           0       -2.177937    1.257432    0.000000
+ ---------------------------------------------------------------------
+                         Standard orientation:                         
+ ---------------------------------------------------------------------
+ Center     Atomic      Atomic             Coordinates (Angstroms)
+ Number     Number       Type             X           Y           Z
+ ---------------------------------------------------------------------
+      1          6           0        0.000000    1.429262   -0.000000
+      2          6           0        1.237777    0.714631   -0.000000
+      3          6           0        1.237777   -0.714631   -0.000000
+      4          6           0       -0.000000   -1.429262   -0.000000
+      5          6           0       -1.237777   -0.714631   -0.000000
+      6          6           0       -1.237777    0.714631   -0.000000
+      7          1           0        0.000000    2.514865   -0.000000
+      8          1           0        2.177937    1.257433   -0.000000
+      9          1           0        2.177937   -1.257433   -0.000000
+     10          1           0       -0.000000   -2.514865   -0.000000
+     11          1           0       -2.177937   -1.257433   -0.000000
+     12          1           0       -2.177937    1.257433   -0.000000
+ ---------------------------------------------------------------------
+ Standard basis: 6-31G(d) (6D, 7F)
+    21 alpha electrons       21 beta electrons
+ SCF Done:  E(RB3LYP) =  -232.243099004     A.U. after    9 cycles
+ Excitation energies and oscillator strengths:
+ 
+ Excited state symmetry could not be determined.
+ Excited State   1:      Singlet-?Sym    5.2572 eV  235.84 nm  f=0.0000  <S**2>=0.000
+      20 -> 23         0.49984
+      21 -> 22         0.49984
+ This state for optimization and/or second-order correction.
+ Total Energy, E(TD-HF/TD-DFT) =  -232.049900548    
+ Copying the excited state density for this state as the 1-particle RhoCI density.
+ 
+ Excited state symmetry could not be determined.
+ Excited State   2:      Singlet-?Sym    6.0320 eV  205.54 nm  f=0.0000  <S**2>=0.000
+      20 -> 22         0.49827
+      21 -> 23        -0.49827
+ 
+ Excited state symmetry could not be determined.
+ Excited State   3:      Singlet-?Sym    7.0629 eV  175.54 nm  f=0.5329  <S**2>=0.000
+      20 -> 22         0.49836
+      21 -> 23         0.49836
+ 
+ Excited state symmetry could not be determined.
+ Excited State   4:      Singlet-?Sym    7.0629 eV  175.54 nm  f=0.5329  <S**2>=0.000
+      20 -> 23        -0.49836
+      21 -> 22         0.49836
+ 
+ Excited state symmetry could not be determined.
+ Excited State   5:      Singlet-?Sym    7.7252 eV  160.49 nm  f=0.0000  <S**2>=0.000
+      18 -> 23        -0.49832
+      19 -> 22         0.49832
+ 
+ Excited state symmetry could not be determined.
+ Excited State   6:      Singlet-?Sym    7.8338 eV  158.27 nm  f=0.0000  <S**2>=0.000
+      18 -> 23         0.49865
+      19 -> 22         0.49865
+ SavETr:  write IOETrn=   770 NScale= 10 NData=  16 NLR=1 NState=    6 LETran=     118.
+                          Input orientation:                          
+ ---------------------------------------------------------------------
+ Center     Atomic      Atomic             Coordinates (Angstroms)
+ Number     Number       Type             X           Y           Z
+ ---------------------------------------------------------------------
+      1          6           0       -0.000000    1.427568    0.000000
+      2          6           0        1.236310    0.713784    0.000000
+      3          6           0        1.236310   -0.713784    0.000000
+      4          6           0        0.000000   -1.427568    0.000000
+      5          6           0       -1.236310   -0.713784    0.000000
+      6          6           0       -1.236310    0.713784    0.000000
+      7          1           0       -0.000000    2.512403    0.000000
+      8          1           0        2.175805    1.256202    0.000000
+      9          1           0        2.175805   -1.256201    0.000000
+     10          1           0        0.000000   -2.512403    0.000000
+     11          1           0       -2.175805   -1.256202    0.000000
+     12          1           0       -2.175805    1.256201    0.000000
+ ---------------------------------------------------------------------
+                         Standard orientation:                         
+ ---------------------------------------------------------------------
+ Center     Atomic      Atomic             Coordinates (Angstroms)
+ Number     Number       Type             X           Y           Z
+ ---------------------------------------------------------------------
+      1          6           0        0.000000    1.427568    0.000000
+      2          6           0        1.236310    0.713784    0.000000
+      3          6           0        1.236310   -0.713784    0.000000
+      4          6           0       -0.000000   -1.427568    0.000000
+      5          6           0       -1.236310   -0.713784    0.000000
+      6          6           0       -1.236310    0.713784    0.000000
+      7          1           0        0.000000    2.512403    0.000000
+      8          1           0        2.175805    1.256202    0.000000
+      9          1           0        2.175805   -1.256202    0.000000
+     10          1           0       -0.000000   -2.512403    0.000000
+     11          1           0       -2.175805   -1.256202    0.000000
+     12          1           0       -2.175805    1.256202    0.000000
+ ---------------------------------------------------------------------
+ Standard basis: 6-31G(d) (6D, 7F)
+    21 alpha electrons       21 beta electrons
+ SCF Done:  E(RB3LYP) =  -232.243639630     A.U. after    6 cycles
+ Excitation energies and oscillator strengths:
+ 
+ Excited state symmetry could not be determined.
+ Excited State   1:      Singlet-?Sym    5.2715 eV  235.20 nm  f=0.0000  <S**2>=0.000
+      20 -> 22         0.49983
+      21 -> 23         0.49983
+ This state for optimization and/or second-order correction.
+ Total Energy, E(TD-HF/TD-DFT) =  -232.049917022    
+ Copying the excited state density for this state as the 1-particle RhoCI density.
+ 
+ Excited state symmetry could not be determined.
+ Excited State   2:      Singlet-?Sym    6.0457 eV  205.08 nm  f=0.0000  <S**2>=0.000
+      20 -> 23         0.49827
+      21 -> 22        -0.49827
+ 
+ Excited state symmetry could not be determined.
+ Excited State   3:      Singlet-?Sym    7.0789 eV  175.15 nm  f=0.5342  <S**2>=0.000
+      20 -> 23         0.49835
+      21 -> 22         0.49835
+ 
+ Excited state symmetry could not be determined.
+ Excited State   4:      Singlet-?Sym    7.0789 eV  175.15 nm  f=0.5342  <S**2>=0.000
+      20 -> 22        -0.49835
+      21 -> 23         0.49835
+ 
+ Excited state symmetry could not be determined.
+ Excited State   5:      Singlet-?Sym    7.7345 eV  160.30 nm  f=0.0000  <S**2>=0.000
+      18 -> 22        -0.49833
+      19 -> 23         0.49833
+ 
+ Excited state symmetry could not be determined.
+ Excited State   6:      Singlet-?Sym    7.8431 eV  158.08 nm  f=0.0000  <S**2>=0.000
+      18 -> 22         0.49866
+      19 -> 23         0.49866
+ SavETr:  write IOETrn=   770 NScale= 10 NData=  16 NLR=1 NState=    6 LETran=     118.
+         Item               Value     Threshold  Converged?
+ Maximum Force            0.000015     0.000450     YES
+ RMS     Force            0.000005     0.000300     YES
+ Maximum Displacement     0.000039     0.001800     YES
+ RMS     Displacement     0.000013     0.001200     YES
+ Predicted change in Energy=-1.728265D-09
+ Optimization completed.
+    -- Stationary point found.
+                          Input orientation:                          
+ ---------------------------------------------------------------------
+ Center     Atomic      Atomic             Coordinates (Angstroms)
+ Number     Number       Type             X           Y           Z
+ ---------------------------------------------------------------------
+      1          6           0       -0.000000    1.427568    0.000000
+      2          6           0        1.236310    0.713784    0.000000
+      3          6           0        1.236310   -0.713784    0.000000
+      4          6           0        0.000000   -1.427568    0.000000
+      5          6           0       -1.236310   -0.713784    0.000000
+      6          6           0       -1.236310    0.713784    0.000000
+      7          1           0       -0.000000    2.512403    0.000000
+      8          1           0        2.175805    1.256202    0.000000
+      9          1           0        2.175805   -1.256201    0.000000
+     10          1           0        0.000000   -2.512403    0.000000
+     11          1           0       -2.175805   -1.256202    0.000000
+     12          1           0       -2.175805    1.256201    0.000000
+ ---------------------------------------------------------------------
+                         Standard orientation:                         
+ ---------------------------------------------------------------------
+ Center     Atomic      Atomic             Coordinates (Angstroms)
+ Number     Number       Type             X           Y           Z
+ ---------------------------------------------------------------------
+      1          6           0        0.000000    1.427568   -0.000000
+      2          6           0        1.236310    0.713784   -0.000000
+      3          6           0        1.236310   -0.713784   -0.000000
+      4          6           0       -0.000000   -1.427568   -0.000000
+      5          6           0       -1.236310   -0.713784   -0.000000
+      6          6           0       -1.236310    0.713784   -0.000000
+      7          1           0        0.000000    2.512403   -0.000000
+      8          1           0        2.175805    1.256202   -0.000000
+      9          1           0        2.175805   -1.256202   -0.000000
+     10          1           0       -0.000000   -2.512403   -0.000000
+     11          1           0       -2.175805   -1.256202   -0.000000
+     12          1           0       -2.175805    1.256202   -0.000000
+ ---------------------------------------------------------------------
+ **********************************************************************
+
+            Population analysis using the SCF density.
+
+ **********************************************************************
+ Normal termination of Gaussian 16 at Sun Sep 27 10:01:21 2026.
