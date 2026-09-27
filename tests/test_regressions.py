@@ -382,7 +382,7 @@ class TexGeneratorTest(TempDirTestCase):
 
 	def test_full_style_lists_the_thermochemistry(self):
 		tex = self.generate(7, 'orca_thermochemistry.out')
-		self.assertIn(r'\multicolumn{5}{l}{Sum of electronic and thermal Free Energies = -231.99292080 Hartree} \\', tex)
+		self.assertIn(r'\multicolumn{6}{l}{Sum of electronic and thermal Free Energies = -231.99292080 Hartree} \\', tex)
 
 	def test_imaginary_frequencies_in_math_mode(self):
 		tex = self.generate(7, 'orca_opt_freq.out')
@@ -416,12 +416,16 @@ class TexGeneratorTest(TempDirTestCase):
 
 	@unittest.skipUnless(shutil.which('pdflatex'), 'pdflatex is not installed')
 	def test_tex_files_compile(self):
+		#Every table fits into the text width. Compiled twice, because longtable uses the column widths of the previous run.
 		for name in ('orca_opt_freq.out', 'orca_tddft.out', 'orca_tddft_triplet.out', 'orca_tddft_singlets_triplets.out', 'orca_thermochemistry.out'):
 			for si_style in (7, 8, 9):
 				with self.subTest(file=name, si_style=si_style):
 					self.generate(si_style, name)
-					result = subprocess.run(['pdflatex', '-interaction=nonstopmode', '-halt-on-error', f'{name[:-3]}tex'], capture_output=True, text=True, errors='replace', timeout=120)
-					self.assertEqual(result.returncode, 0, result.stdout[-1500:])
+					for run in range(2):
+						result = subprocess.run(['pdflatex', '-interaction=nonstopmode', '-halt-on-error', f'{name[:-3]}tex'], capture_output=True, text=True, errors='replace', timeout=120)
+						self.assertEqual(result.returncode, 0, result.stdout[-1500:])
+					with open(f'{name[:-3]}log', errors='replace') as f:
+						self.assertNotIn(r'Overfull \hbox', f.read())
 
 
 if __name__ == '__main__':
