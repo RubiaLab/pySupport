@@ -1,5 +1,14 @@
 import os
-import sys
+
+def read_coords(calc_output, start):
+	#Read coordinate lines up to the next section header, skipping empty lines
+	coords = []
+	for line in calc_output[start:]:
+		if '------' in line:
+			break
+		if line.strip():
+			coords.append(line.strip())
+	return coords
 
 def analyzer(filename):
 	
@@ -13,8 +22,8 @@ def analyzer(filename):
 	if normal_termination:
 		print(f'Calculation in file {file} terminated normally – continuing ...')
 	else:
-		print(f'Warning: Calculation in file {file} did not terminate normally. Exiting the program ...')
-		sys.exit()
+		print(f'Warning: Calculation in file {file} did not terminate normally. Moving to next file ...')
+		return None
 	
 	coords = []
 	freqs = []
@@ -38,25 +47,33 @@ def analyzer(filename):
 			input_section_end = i+1
 			break
 
-	for j, line in enumerate(calc_output):
+	#Determine job type from the keyword lines (!) and the %tddft block of the input.
+	#File names (NAME = ..., * xyzfile ...) and comments are ignored.
+	keywords = ''
+	tddft_found = False
+	for k in range(input_section_start, input_section_end):
+		input_line = calc_output[k].split('>', 1)[-1].split('#')[0].strip().casefold()
+		if input_line.startswith('!'):
+			keywords += f' {input_line}'
+		if '%tddft' in input_line:
+			tddft_found = True
+	opt_found = 'opt' in keywords
+	freq_found = 'freq' in keywords
 
-		#Determine job type
+	if tddft_found:
+		jobtype = 'tddft'
+	elif opt_found and freq_found:
+		jobtype = 'opt+freq'
+	elif opt_found:
+		jobtype = 'opt'
+	elif freq_found:
+		jobtype = 'freq'
+	elif '* Single Point Calculation *' in calc_output[input_section_end+3]:
+		jobtype = 'sp'
+	else:
 		jobtype = 'other'
-		opt_found = False
-		if '* Single Point Calculation *' in calc_output[input_section_end+3]:
-			jobtype = 'sp'
 
-		for k in range(input_section_start, input_section_end):
-			if 'opt'.casefold() in calc_output[k].casefold():
-				jobtype = 'opt'
-				opt_found = True
-			elif 'freq'.casefold() in calc_output[k].casefold():
-				if opt_found:
-					jobtype = 'opt+freq'
-				else:
-					jobtype = 'freq'
-			elif '%tddft'.casefold() in calc_output[k].casefold():
-				jobtype = 'tddft'
+	for j, line in enumerate(calc_output):
 
 		#Determine basis set
 		if 'Your calculation utilizes the basis:' in line:
@@ -76,24 +93,12 @@ def analyzer(filename):
 		if 'FINAL SINGLE POINT ENERGY' in line:
 			total_energy = line.split()[4]
 
-		#Determine coordinates ORCA
-		if jobtype == 'sp':
-			if 'CARTESIAN COORDINATES (ANGSTROEM)' in line:
-				l = j + 2
-				while l < len(calc_output):  
-					if '------' in calc_output[l]:
-						break
-					coords.append(calc_output[l].strip())  
-					l += 1
-				coords.pop()  #removes empty line after coordinates
-		elif '*** FINAL ENERGY EVALUATION AT THE STATIONARY POINT ***' in line:
-			l = j + 6
-			while l < len(calc_output):  
-				if '------' in calc_output[l]:
-					break
-				coords.append(calc_output[l].strip())  
-				l += 1
-			coords.pop()  #removes empty line after coordinates
+		#Determine coordinates ORCA: final geometry of an optimization, otherwise the input geometry
+		if opt_found:
+			if '*** FINAL ENERGY EVALUATION AT THE STATIONARY POINT ***' in line:
+				coords = read_coords(calc_output, j + 6)
+		elif 'CARTESIAN COORDINATES (ANGSTROEM)' in line and not coords:
+			coords = read_coords(calc_output, j + 2)
 
 	#Determine frequencies
 	if jobtype == 'freq' or jobtype == 'opt+freq':
@@ -148,7 +153,6 @@ def analyzer(filename):
 					break
 		if jobtype == 'tddft':
 		# TD-DFT section
-			current_block = []
 			for r in range(len(calc_output)):
 				if 'EXCITED STATES' in calc_output[r]:
 					tddft_section_start = r + 7
@@ -157,33 +161,30 @@ def analyzer(filename):
 				if 'ABSORPTION SPECTRUM VIA TRANSITION VELOCITY DIPOLE MOMENTS' in calc_output[r]:
 					tddft_section_end = r - 2
 
-			for s in range(tddft_section_start-2, states_section_start-17):
+			#Read every line up to the absorption spectrum header (one block per state)
+			for s in range(tddft_section_start-2, states_section_start-5):
 				line = calc_output[s].strip()
 				if not line:
 					continue  # überspringt leere Zeilen
 				parts = line.split()
 				if parts[0] == 'STATE':
-					if current_block:
-						state_blocks.append(current_block)
-						current_block = []
-				else:
+					state_blocks.append([])
+				elif state_blocks and len(parts) >= 5 and parts[1] == '->':
 					try:
-						from_orb = int(parts[0][:-1])
-						to_orb = int(parts[2][:-1])
-						coeff = float(parts[4])
-						current_block.append([from_orb, to_orb, coeff])
-					except (IndexError, ValueError):
+						state_blocks[-1].append([parts[0], parts[2], float(parts[4])])
+					except ValueError:
 						continue
 
-			if current_block:
-				state_blocks.append(current_block)
+			#Closed shell: all orbitals are alpha orbitals (a), so the label is dropped. Open shell: a/b are kept like in the ORCA output.
+			if is_closed and not any(entry[0].endswith('b') for block in state_blocks for entry in block):
+				state_blocks = [[[entry[0].removesuffix('a'), entry[1].removesuffix('a'), entry[2]] for entry in block] for block in state_blocks]
 
+			#Keep the contributions above filter_coeff, but at least the largest one, so that no state is dropped
 			filter_coeff = 0.05
 			state_blocks = [
-				filtered_block
+				[entry for entry in block if abs(entry[2]) > filter_coeff] or sorted(block, key=lambda entry: abs(entry[2]))[-1:]
 				for block in state_blocks
-				if (filtered_block := [entry for entry in block if abs(entry[2]) > filter_coeff])
-			]	
+			]
 			for t in range(states_section_start, tddft_section_end):
 				states.append(calc_output[t].strip().split()) #evtl rausnehmen
 				energies.append(float(calc_output[t].strip().split()[3]))
@@ -216,7 +217,7 @@ def analyzer(filename):
 			print(f'LUMO Energy: {orbitals[lumo_number][2]} Hartree')
 		if jobtype == 'tddft':
 			#print('States: ', states)
-			print(f'Only listing orbital contribution > {filter_coeff}.')
+			print(f'Only listing orbital contributions > {filter_coeff} (at least the largest one per state).')
 			print('State blocks:', state_blocks)
 			print('Energies (eV):', energies)
 			print('Wavelengths (nm):', wavelengths)

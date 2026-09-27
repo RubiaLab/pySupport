@@ -1,4 +1,3 @@
-import sys
 import openpyxl
 from openpyxl.styles import Border, Font, Alignment, Side
 
@@ -294,8 +293,8 @@ def generate_xlsx(si_style, SI_workbook, file, basis_set, charge, multiplicity, 
 
 	elif si_style == 6:
 		if len(coords) == 0:
-			print('No coordinates found in output file. Exiting the program...')
-			sys.exit()
+			print('No coordinates found in output file. Moving to next file...')
+			return
 
 		print('Generating coordinates .xlsx file ...')
 

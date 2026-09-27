@@ -1,0 +1,164 @@
+ Entering Gaussian System, Link 0=/usr/local/g16/g16
+ Cite this work as:
+ Gaussian 16, Revision A.03,
+ ******************************************
+ Gaussian 16:  ES64L-G16RevA.03 25-Dec-2016
+                27-Sep-2026 
+ ******************************************
+ %NProcShared=8
+ Will use up to    8 processors via shared memory.
+ --------------------------------------------------
+ #N TD(NStates=20) B3LYP/6-31G(d) Geom=Connectivity
+ --------------------------------------------------
+ ----
+ C6H6
+ ----
+ Symbolic Z-matrix:
+ Charge =  0 Multiplicity = 1
+                          Input orientation:                          
+ ---------------------------------------------------------------------
+ Center     Atomic      Atomic             Coordinates (Angstroms)
+ Number     Number       Type             X           Y           Z
+ ---------------------------------------------------------------------
+      1          6           0        0.000000    0.000000    0.000000
+      2          6           0        0.000000    0.000000    1.342425
+      3          6           0        1.162574    0.000000    2.013638
+      4          6           0        2.325149    0.000000    1.342425
+      5          6           0        2.325149    0.000000    0.000000
+      6          6           0        1.162574    0.000000   -0.671213
+      7          1           0        1.162574    0.000000   -1.775106
+      8          1           0        3.281148    0.000000   -0.551947
+      9          1           0        3.281148    0.000000    1.894372
+     10          1           0        1.162574    0.000000    3.117531
+     11          1           0       -0.956000    0.000000    1.894372
+     12          1           0       -0.956000    0.000000   -0.551947
+ ---------------------------------------------------------------------
+                         Standard orientation:                         
+ ---------------------------------------------------------------------
+ Center     Atomic      Atomic             Coordinates (Angstroms)
+ Number     Number       Type             X           Y           Z
+ ---------------------------------------------------------------------
+      1          6           0       -0.000000    1.342425   -0.000000
+      2          6           0        1.162574    0.671213   -0.000000
+      3          6           0        1.162574   -0.671213    0.000000
+      4          6           0       -0.000000   -1.342425   -0.000000
+      5          6           0       -1.162574   -0.671213   -0.000000
+      6          6           0       -1.162574    0.671213   -0.000000
+      7          1           0       -2.118574    1.223159   -0.000000
+      8          1           0       -2.118574   -1.223159   -0.000000
+      9          1           0       -0.000000   -2.446319   -0.000000
+     10          1           0        2.118574   -1.223159   -0.000000
+     11          1           0        2.118574    1.223159    0.000000
+     12          1           0        0.000000    2.446319   -0.000000
+ ---------------------------------------------------------------------
+ Standard basis: 6-31G(d) (6D, 7F)
+ SCF Done:  E(RB3LYP) =  -232.229946518     A.U. after    9 cycles
+ Excitation energies and oscillator strengths:
+ 
+ Excited state symmetry could not be determined.
+ Excited State   1:      Singlet-?Sym    6.0592 eV  204.62 nm  f=0.0000  <S**2>=0.000
+      20 -> 22         0.49972
+      21 -> 23         0.49972
+ This state for optimization and/or second-order correction.
+ Total Energy, E(TD-HF/TD-DFT) =  -232.007275475    
+ Copying the excited state density for this state as the 1-particle RhoCI density.
+ 
+ Excited state symmetry could not be determined.
+ Excited State   2:      Singlet-?Sym    6.7964 eV  182.43 nm  f=0.0000  <S**2>=0.000
+      20 -> 23        -0.49832
+      21 -> 22         0.49833
+ 
+ Excited state symmetry could not be determined.
+ Excited State   3:      Singlet-?Sym    7.9284 eV  156.38 nm  f=0.5993  <S**2>=0.000
+      20 -> 23         0.49720
+      21 -> 22         0.49720
+ 
+ Excited state symmetry could not be determined.
+ Excited State   4:      Singlet-?Sym    7.9284 eV  156.38 nm  f=0.5993  <S**2>=0.000
+      20 -> 22        -0.49720
+      21 -> 23         0.49720
+ 
+ Excited State   5:      Singlet-E1G    8.0025 eV  154.93 nm  f=0.0000  <S**2>=0.000
+      21 -> 24         0.70534
+ 
+ Excited State   6:      Singlet-E1G    8.0025 eV  154.93 nm  f=0.0000  <S**2>=0.000
+      20 -> 24         0.70534
+ 
+ Excited state symmetry could not be determined.
+ Excited State   7:      Singlet-?Sym    8.0779 eV  153.48 nm  f=0.0000  <S**2>=0.000
+      18 -> 23        -0.49885
+      19 -> 22         0.49885
+ 
+ Excited state symmetry could not be determined.
+ Excited State   8:      Singlet-?Sym    8.1775 eV  151.62 nm  f=0.0097  <S**2>=0.000
+      18 -> 22         0.49888
+      19 -> 23         0.49888
+ 
+ Excited state symmetry could not be determined.
+ Excited State   9:      Singlet-?Sym    8.1787 eV  151.59 nm  f=0.0000  <S**2>=0.000
+      18 -> 23         0.49874
+      19 -> 22         0.49874
+ 
+ Excited state symmetry could not be determined.
+ Excited State  10:      Singlet-?Sym    8.1787 eV  151.59 nm  f=0.0000  <S**2>=0.000
+      18 -> 22        -0.49874
+      19 -> 23         0.49874
+ 
+ Excited state symmetry could not be determined.
+ Excited State  11:      Singlet-?Sym    9.4768 eV  130.83 nm  f=0.0000  <S**2>=0.000
+      17 -> 24        -0.10479
+      20 -> 25         0.49320
+      21 -> 26         0.49319
+ 
+ Excited state symmetry could not be determined.
+ Excited State  12:      Singlet-?Sym    9.5593 eV  129.70 nm  f=0.0000  <S**2>=0.000
+      20 -> 25        -0.49872
+      21 -> 26         0.49873
+ 
+ Excited state symmetry could not be determined.
+ Excited State  13:      Singlet-?Sym    9.5593 eV  129.70 nm  f=0.0000  <S**2>=0.000
+      20 -> 26         0.49873
+      21 -> 25         0.49873
+ 
+ Excited state symmetry could not be determined.
+ Excited State  14:      Singlet-?Sym    9.6601 eV  128.35 nm  f=0.0000  <S**2>=0.000
+      20 -> 26        -0.49989
+      21 -> 25         0.49989
+ 
+ Excited State  15:      Singlet-E2G    9.9409 eV  124.72 nm  f=0.0000  <S**2>=0.000
+      17 -> 22         0.66394
+      18 -> 24         0.12396
+      21 -> 29         0.20156
+ 
+ Excited State  16:      Singlet-E2G    9.9409 eV  124.72 nm  f=0.0000  <S**2>=0.000
+      17 -> 23         0.66394
+      19 -> 24         0.12398
+      20 -> 29        -0.20155
+ 
+ Excited state symmetry could not be determined.
+ Excited State  17:      Singlet-?Sym   10.2713 eV  120.71 nm  f=0.0000  <S**2>=0.000
+      15 -> 22        -0.49695
+      16 -> 23         0.49695
+ 
+ Excited state symmetry could not be determined.
+ Excited State  18:      Singlet-?Sym   10.3971 eV  119.25 nm  f=0.0000  <S**2>=0.000
+      15 -> 23        -0.49298
+      16 -> 22         0.49298
+ 
+ Excited state symmetry could not be determined.
+ Excited State  19:      Singlet-?Sym   10.3971 eV  119.25 nm  f=0.0000  <S**2>=0.000
+      15 -> 22         0.49298
+      16 -> 23         0.49298
+ 
+ Excited state symmetry could not be determined.
+ Excited State  20:      Singlet-?Sym   10.4695 eV  118.42 nm  f=0.0000  <S**2>=0.000
+      15 -> 23         0.49960
+      16 -> 22         0.49960
+ SavETr:  write IOETrn=   770 NScale= 10 NData=  16 NLR=1 NState=   20 LETran=     370.
+
+ **********************************************************************
+
+            Population analysis using the SCF density.
+
+ **********************************************************************
+ Normal termination of Gaussian 16 at Sun Sep 27 08:56:02 2026.

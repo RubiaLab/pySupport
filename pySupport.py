@@ -51,6 +51,8 @@ def main():
 
 		#Determine QC program
 		calc_program = None
+		program_type = None
+		program_version = 'unknown'
 		previous_line = None
 		for line in calc_output:
 			if '* O   R   C   A *' in line:
@@ -68,18 +70,18 @@ def main():
 				program_version = line.strip()[:-1]
 				break
 			previous_line = line
+
+		if not calc_program:
+			print(f'Could not determine calculation program of {filename}. Moving to next file...')
+			continue
 		print('Calculation program: ', calc_program)
 		print('Program version: ', program_version)
 
-		if not calc_program:
-			print('Could not determine calculation program. Exiting the program...')
-			sys.exit()
-
-		#Calculation file analysis
-		if program_type == 0:
-			file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords, state_blocks, energies, wavelengths, f_osc = fa.analyzer(filename)
-		if program_type == 1:
-			file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords, state_blocks, energies, wavelengths, f_osc = fa.analyzer(filename)
+		#Calculation file analysis (None if the calculation did not terminate normally)
+		calc_data = fa.analyzer(filename)
+		if calc_data is None:
+			continue
+		file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords, state_blocks, energies, wavelengths, f_osc = calc_data
 
 		#SI file generation
 		if si_style in [1, 2, 3]:
@@ -87,7 +89,6 @@ def main():
 			print(f'File "{filename.strip()[:-3]}txt" for Supporting Information saved in the same directory.')
 		elif si_style in [4, 5, 6]:
 			xlsx.generate_xlsx(si_style, SI_workbook, file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords, state_blocks, energies, wavelengths, f_osc)
-			print(f'Files for Supporting Information saved as "SI_output.xlsx" in the same directory.')
 		elif si_style in [7, 8, 9]:
 			tex.generate_tex(si_style, file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords, state_blocks, energies, wavelengths, f_osc)
 			print(f'File "{file.strip()[:-3]}tex" for Supporting Information saved in the same directory.')
@@ -98,8 +99,12 @@ def main():
 	if si_style in [4, 5, 6]:
 		#Remove first empty worksheet
 		del SI_workbook['Sheet']
-		# Save xlsx file
-		SI_workbook.save('SI_output.xlsx')
+		# Save xlsx file (only if at least one worksheet was generated)
+		if SI_workbook.sheetnames:
+			SI_workbook.save('SI_output.xlsx')
+			print('Files for Supporting Information saved as "SI_output.xlsx" in the same directory.')
+		else:
+			print('No worksheets were generated, "SI_output.xlsx" was not written.')
 	print('### Exiting pySupport ###')
 
 if __name__ == '__main__':
