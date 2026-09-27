@@ -1,8 +1,8 @@
 #Regression tests for pySupport
 #
 #The files in tests/fixtures only contain the sections of ORCA 6 and Gaussian 16 output files that
-#pySupport reads. orca_tddft_triplet.out, gaussian_tddft_triplet.out and gaussian_freq.out are trimmed
-#real outputs (benzene, B3LYP/6-31G(d)), the other files are synthetic.
+#pySupport reads. orca_tddft_triplet.out, gaussian_tddft_singlet.out, gaussian_tddft_triplet.out and
+#gaussian_freq.out are trimmed real outputs (benzene, B3LYP/6-31G(d)), the other files are synthetic.
 #
 #Run from the repository root (Python >= 3.12):
 #	python3 -m unittest discover -s tests -v
@@ -124,10 +124,15 @@ class GaussianAnalyzerTest(TempDirTestCase):
 		self.assertEqual(analyze(gaussian_analyzer.analyzer, ts)['imaginary_freqs'], ['-307.3016'])
 
 	def test_tddft_restricted_in_orca_format(self):
-		#Orbitals counted from 0, weight 2c² (restricted), de-excitations (<-) skipped, weights <= 0.05 filtered
+		#Orbitals counted from 0 and weights 2c², which add up to about 1 like in ORCA; weights <= 0.05 are filtered
 		data = analyze(gaussian_analyzer.analyzer, fixture('gaussian_tddft_singlet.out'))
+		self.assertEqual(len(data['state_blocks']), 20)
+		self.assertEqual(len(data['energies']), 20)
 		blocks = [[[a, b, round(w, 4)] for a, b, w in block] for block in data['state_blocks']]
-		self.assertEqual(blocks, [[['19', '22', 0.3811], ['20', '21', 0.6119]], [['19', '21', 0.497], ['20', '22', 0.497]], [['19', '21', 0.9828]]])
+		self.assertEqual(blocks[0], [['19', '21', 0.4994], ['20', '22', 0.4994]])
+		self.assertEqual(blocks[4], [['20', '23', 0.995]])
+		#18 -> 24 (0.12396) gives 2c² = 0.031 and is filtered
+		self.assertEqual(blocks[14], [['16', '21', 0.8816], ['20', '28', 0.0813]])
 
 	def test_tddft_unrestricted_in_orca_format(self):
 		data = analyze(gaussian_analyzer.analyzer, fixture('gaussian_tddft_triplet.out'))
