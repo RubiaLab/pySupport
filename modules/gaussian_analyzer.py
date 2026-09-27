@@ -1,5 +1,4 @@
 import os
-import sys
 
 def analyzer(filename):
 	print('Running Gaussian analyzer...')
@@ -20,7 +19,7 @@ def analyzer(filename):
 	periodTable = ['Bq', 'H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne', 'Na', 'Mg', 'Al', 'Si', 'P', 'S', 'Cl', 'Ar', \
 					'K', 'Ca', 'Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn', 'Ga', 'Ge', 'As', 'Se', 'Br', 'Kr', \
 					'Rb', 'Sr', 'Y', 'Zr', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'In', 'Sn', 'Sb', 'Te', 'I', 'Xe', \
-					'Cs', 'Ba', 'La', 'Ce', 'Pr', 'Nd', 'Pm', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Ym', 'Yb', 'Lu', 'Ha', 'Ta', \
+					'Cs', 'Ba', 'La', 'Ce', 'Pr', 'Nd', 'Pm', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb', 'Lu', 'Hf', 'Ta', \
 					'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg', 'Tl', 'Pb', 'Bi', 'Po', 'At', 'Rn', 'Fr', 'Ra', 'Ac', 'Th', 'Pa', 'U', \
 					'Np', 'Pu', 'Am', 'Cm', 'Bk', 'Cf', 'Es', 'Fm', 'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds', 'Rg', \
 					'Cn', 'Nh', 'Fl', 'Mc', 'Lv', 'Ts', 'Og']
@@ -30,12 +29,14 @@ def analyzer(filename):
 	if normal_termination:
 		print(f'Calculation in file {file} terminated normally – continuing ...')
 	else:
-		print(f'Warning: Calculation in file {file} did not terminate normally. Exiting the program ...')
-		sys.exit()
+		print(f'Warning: Calculation in file {file} did not terminate normally. Moving to next file ...')
+		return None
 
 	coords = []
 	geo_start_line = None
+	input_geo_start_line = None
 	input_line = None
+	basis_set = 'unknown'
 
 	#Determine input section
 	for i in range(len(calc_output)):
@@ -61,9 +62,11 @@ def analyzer(filename):
 		if 'td' in route_line:
 			jobtype = 'tddft'
 
-		#Determine basis set
+		#Determine basis set (gen/genecp: basis set is defined in the input file)
 		if 'Standard basis:' in line:
 			basis_set = line.split()[2]
+		elif 'General basis read from cards' in line:
+			basis_set = 'genecp' if 'genecp' in route_line else 'gen'
 
 		#Determine charge
 		if 'Charge =' in line:
@@ -80,6 +83,12 @@ def analyzer(filename):
 		#Determine coordinates Gaussian
 		if 'Standard orientation:' in line:
 			geo_start_line = j
+		elif 'Input orientation:' in line:
+			input_geo_start_line = j
+
+	#Without symmetry (e.g. nosymm) Gaussian only prints the input orientation
+	if geo_start_line is None:
+		geo_start_line = input_geo_start_line
 
 	if geo_start_line is not None:
 		for m in range(geo_start_line + 5, len(calc_output)):

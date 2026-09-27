@@ -1,5 +1,14 @@
 import os
-import sys
+
+def read_coords(calc_output, start):
+	#Read coordinate lines up to the next section header, skipping empty lines
+	coords = []
+	for line in calc_output[start:]:
+		if '------' in line:
+			break
+		if line.strip():
+			coords.append(line.strip())
+	return coords
 
 def analyzer(filename):
 	
@@ -13,8 +22,8 @@ def analyzer(filename):
 	if normal_termination:
 		print(f'Calculation in file {file} terminated normally – continuing ...')
 	else:
-		print(f'Warning: Calculation in file {file} did not terminate normally. Exiting the program ...')
-		sys.exit()
+		print(f'Warning: Calculation in file {file} did not terminate normally. Moving to next file ...')
+		return None
 	
 	coords = []
 	freqs = []
@@ -38,25 +47,33 @@ def analyzer(filename):
 			input_section_end = i+1
 			break
 
-	for j, line in enumerate(calc_output):
+	#Determine job type from the keyword lines (!) and the %tddft block of the input.
+	#File names (NAME = ..., * xyzfile ...) and comments are ignored.
+	keywords = ''
+	tddft_found = False
+	for k in range(input_section_start, input_section_end):
+		input_line = calc_output[k].split('>', 1)[-1].split('#')[0].strip().casefold()
+		if input_line.startswith('!'):
+			keywords += f' {input_line}'
+		if '%tddft' in input_line:
+			tddft_found = True
+	opt_found = 'opt' in keywords
+	freq_found = 'freq' in keywords
 
-		#Determine job type
+	if tddft_found:
+		jobtype = 'tddft'
+	elif opt_found and freq_found:
+		jobtype = 'opt+freq'
+	elif opt_found:
+		jobtype = 'opt'
+	elif freq_found:
+		jobtype = 'freq'
+	elif '* Single Point Calculation *' in calc_output[input_section_end+3]:
+		jobtype = 'sp'
+	else:
 		jobtype = 'other'
-		opt_found = False
-		if '* Single Point Calculation *' in calc_output[input_section_end+3]:
-			jobtype = 'sp'
 
-		for k in range(input_section_start, input_section_end):
-			if 'opt'.casefold() in calc_output[k].casefold():
-				jobtype = 'opt'
-				opt_found = True
-			elif 'freq'.casefold() in calc_output[k].casefold():
-				if opt_found:
-					jobtype = 'opt+freq'
-				else:
-					jobtype = 'freq'
-			elif '%tddft'.casefold() in calc_output[k].casefold():
-				jobtype = 'tddft'
+	for j, line in enumerate(calc_output):
 
 		#Determine basis set
 		if 'Your calculation utilizes the basis:' in line:
@@ -76,24 +93,12 @@ def analyzer(filename):
 		if 'FINAL SINGLE POINT ENERGY' in line:
 			total_energy = line.split()[4]
 
-		#Determine coordinates ORCA
-		if jobtype == 'sp':
-			if 'CARTESIAN COORDINATES (ANGSTROEM)' in line:
-				l = j + 2
-				while l < len(calc_output):  
-					if '------' in calc_output[l]:
-						break
-					coords.append(calc_output[l].strip())  
-					l += 1
-				coords.pop()  #removes empty line after coordinates
-		elif '*** FINAL ENERGY EVALUATION AT THE STATIONARY POINT ***' in line:
-			l = j + 6
-			while l < len(calc_output):  
-				if '------' in calc_output[l]:
-					break
-				coords.append(calc_output[l].strip())  
-				l += 1
-			coords.pop()  #removes empty line after coordinates
+		#Determine coordinates ORCA: final geometry of an optimization, otherwise the input geometry
+		if opt_found:
+			if '*** FINAL ENERGY EVALUATION AT THE STATIONARY POINT ***' in line:
+				coords = read_coords(calc_output, j + 6)
+		elif 'CARTESIAN COORDINATES (ANGSTROEM)' in line and not coords:
+			coords = read_coords(calc_output, j + 2)
 
 	#Determine frequencies
 	if jobtype == 'freq' or jobtype == 'opt+freq':

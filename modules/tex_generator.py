@@ -1,3 +1,8 @@
+def tex_escape(text):
+	#Escape LaTeX special characters, e.g. underscores in file names
+	special_chars = {'\\': r'\textbackslash{}', '&': r'\&', '%': r'\%', '$': r'\$', '#': r'\#', '_': r'\_', '{': r'\{', '}': r'\}', '~': r'\textasciitilde{}', '^': r'\textasciicircum{}'}
+	return ''.join(special_chars.get(char, char) for char in text)
+
 def generate_tex(si_style, file, basis_set, charge, multiplicity, total_energy, jobtype, imaginary_freqs, coords, state_blocks, energies, wavelengths, f_osc):
 	if si_style == 7:
 		print('under construction')
@@ -11,9 +16,11 @@ def generate_tex(si_style, file, basis_set, charge, multiplicity, total_energy, 
 		si_out.write(r'\centering' + '\n')
 		si_out.write(r'\begin{tabular}{ccclcccc}' + '\n')
 		si_out.write(r'\hline' + '\n')
-		si_out.write(r'\multicolumn{8}{c}{\textbf{out.log}} \\ \hline' + '\n')
+		si_out.write(r'\multicolumn{8}{c}{\textbf{')
+		si_out.write(f'{tex_escape(file)}')
+		si_out.write(r'}} \\ \hline' + '\n')
 		si_out.write(r'\multicolumn{3}{c}{\multirow{8}{*}{}} & \multicolumn{5}{l}{Basis set: ')
-		si_out.write(f'{basis_set}')
+		si_out.write(f'{tex_escape(basis_set)}')
 		si_out.write(r'} \\' + '\n')
 		si_out.write(r'\multicolumn{3}{c}{} & \multicolumn{5}{l}{')
 		si_out.write(f'Charge = {charge}, Multiplicity = {multiplicity}')
@@ -26,10 +33,10 @@ def generate_tex(si_style, file, basis_set, charge, multiplicity, total_energy, 
 				si_out.write(r'\multicolumn{3}{c}{} & \multicolumn{5}{l}{Number of imaginary frequencies = 0} \\' +  '\n')
 			else:
 				si_out.write(r'\multicolumn{3}{c}{} & \multicolumn{5}{l}{')
-				si_out.write(f'Number of imaginary frequencies = {len(imaginary_freqs)}, v')
-				si_out.write(r'_{i} = ')
+				si_out.write(f'Number of imaginary frequencies = {len(imaginary_freqs)}, ')
+				si_out.write(r'$\nu_{i}$ = ')
 				si_out.write(f'{', '.join(imaginary_freqs)} ')
-				si_out.write(r'cm^{-1}} \\' +  '\n')
+				si_out.write(r'cm$^{-1}$} \\' +  '\n')
 		if len(coords) > 0:
 			si_out.write(r'\multicolumn{3}{c}{} & \multicolumn{5}{l}{} \\' + '\n')
 			si_out.write(r'\multicolumn{3}{c}{} & \multicolumn{5}{l}{} \\' + '\n')
@@ -100,9 +107,11 @@ def generate_tex(si_style, file, basis_set, charge, multiplicity, total_energy, 
 		si_out.write(r'\centering' + '\n')
 		si_out.write(r'\begin{tabular}{ccclcccc}' + '\n')
 		si_out.write(r'\hline' + '\n')
-		si_out.write(r'\multicolumn{8}{c}{\textbf{out.log}} \\ \hline' + '\n')
+		si_out.write(r'\multicolumn{8}{c}{\textbf{')
+		si_out.write(f'{tex_escape(file)}')
+		si_out.write(r'}} \\ \hline' + '\n')
 		si_out.write(r'\multicolumn{3}{c}{\multirow{8}{*}{}} & \multicolumn{5}{l}{Basis set: ')
-		si_out.write(f'{basis_set}')
+		si_out.write(f'{tex_escape(basis_set)}')
 		si_out.write(r'} \\' + '\n')
 		si_out.write(r'\multicolumn{3}{c}{} & \multicolumn{5}{l}{')
 		si_out.write(f'Charge = {charge}, Multiplicity = {multiplicity}')
@@ -179,7 +188,7 @@ def generate_tex(si_style, file, basis_set, charge, multiplicity, total_energy, 
 		si_out.write(r'\centering' + '\n')
 		si_out.write(r'\begin{tabular}{cccc} \hline' + '\n')
 		si_out.write(r'\multicolumn{4}{c}{\textbf{')
-		si_out.write(f'{file}')
+		si_out.write(f'{tex_escape(file)}')
 		si_out.write(r'}} \\ \hline' + '\n')
 		si_out.write(r' & \multicolumn{3}{c}{\textbf{Cartesian Coordinates (\r{A})}} \\ \cline{2-4} \\ \textbf{Atoms} & \textit{\textbf{X}} & \textit{\textbf{Y}} & \textit{\textbf{Z}} \\ \hline' + '\n')
 
@@ -196,7 +205,10 @@ def generate_tex(si_style, file, basis_set, charge, multiplicity, total_energy, 
 			write_tddft = input('Write TD-DFT summary ([yes]/no)? ') or ('yes')
 			if write_tddft == 'yes':
 				print('Writing TD-DFT summary...')
-				si_out.write(r'\hline' + '\n')
+				#The coordinate table has only four columns, so the TD-DFT summary gets its own table
+				si_out.write(r'\end{tabular}' + '\n\n')
+				si_out.write(r'\bigskip' + '\n')
+				si_out.write(r'\begin{tabular}{ccccc} \hline' + '\n')
 				si_out.write(r'\textbf{State} & \textbf{Orbital Contribution} & \textbf{Energy (eV)} & \textbf{Wavelength (nm)} & \textbf{$f_{osc}$} \\ \hline' + '\n')
 				for n in range(len(state_blocks)):
 					for m in range(len(state_blocks[n])):

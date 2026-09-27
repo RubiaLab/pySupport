@@ -1,0 +1,39 @@
+ Entering Gaussian System, Link 0=g16
+ Input=water_opt.gjf
+ Output=water_opt.log
+ ******************************************
+ Gaussian 16:  ES64L-G16RevC.01  3-Jul-2019
+ ******************************************
+ Cite this work as:
+ Gaussian 16, Revision C.01,
+ M. J. Frisch, G. W. Trucks, H. B. Schlegel, et al.
+ ----------------------------------------------------------------------
+ #p opt b3lyp/6-31g(d) nosymm
+ ----------------------------------------------------------------------
+ Symbolic Z-matrix:
+ Charge =  0 Multiplicity = 1
+ O                     0.        0.        0.
+ H                     0.        0.        1.
+ H                     0.        1.        0.
+                          Input orientation:
+ ---------------------------------------------------------------------
+ Center     Atomic      Atomic             Coordinates (Angstroms)
+ Number     Number       Type             X           Y           Z
+ ---------------------------------------------------------------------
+      1          8           0        0.000000    0.000000    0.000000
+      2          1           0        0.000000    0.000000    1.000000
+      3          1           0        0.000000    1.000000    0.000000
+ ---------------------------------------------------------------------
+ Standard basis: 6-31G(d) (6D, 7F)
+ SCF Done:  E(RB3LYP) =  -76.4000000000     A.U. after   10 cycles
+                          Input orientation:
+ ---------------------------------------------------------------------
+ Center     Atomic      Atomic             Coordinates (Angstroms)
+ Number     Number       Type             X           Y           Z
+ ---------------------------------------------------------------------
+      1          8           0        0.000000    0.000000    0.119262
+      2          1           0        0.000000    0.763239   -0.477047
+      3          1           0        0.000000   -0.763239   -0.477047
+ ---------------------------------------------------------------------
+ SCF Done:  E(RB3LYP) =  -76.4089533000     A.U. after    8 cycles
+ Normal termination of Gaussian 16 at Sun Sep 27 07:00:00 2026.
