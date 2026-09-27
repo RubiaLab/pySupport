@@ -87,7 +87,13 @@ class OrcaAnalyzerTest(unittest.TestCase):
 		data = analyze(orca_analyzer.analyzer, fixture('orca_tddft.out'))
 		self.assertEqual(data['jobtype'], 'tddft')
 		self.assertEqual(data['coords'], WATER_ORCA)
-		self.assertEqual(data['energies'], [7.331939, 9.140216])
+		self.assertEqual(data['energies'], [7.331939, 8.163398, 9.140216])
+
+	def test_tddft_states_stay_aligned_with_their_energies(self):
+		#State 2 has no contribution > 0.05 and keeps its largest one, the last line of state 3 must not be cut off
+		data = analyze(orca_analyzer.analyzer, fixture('orca_tddft.out'))
+		self.assertEqual(data['state_blocks'], [[[4, 5, 0.99438]], [[2, 5, 0.04]], [[3, 5, 0.88], [4, 6, 0.1]]])
+		self.assertEqual(len(data['state_blocks']), len(data['energies']))
 
 
 class GaussianAnalyzerTest(TempDirTestCase):

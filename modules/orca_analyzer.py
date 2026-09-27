@@ -153,7 +153,6 @@ def analyzer(filename):
 					break
 		if jobtype == 'tddft':
 		# TD-DFT section
-			current_block = []
 			for r in range(len(calc_output)):
 				if 'EXCITED STATES' in calc_output[r]:
 					tddft_section_start = r + 7
@@ -162,33 +161,29 @@ def analyzer(filename):
 				if 'ABSORPTION SPECTRUM VIA TRANSITION VELOCITY DIPOLE MOMENTS' in calc_output[r]:
 					tddft_section_end = r - 2
 
-			for s in range(tddft_section_start-2, states_section_start-17):
+			#Read every line up to the absorption spectrum header (one block per state)
+			for s in range(tddft_section_start-2, states_section_start-5):
 				line = calc_output[s].strip()
 				if not line:
 					continue  # überspringt leere Zeilen
 				parts = line.split()
 				if parts[0] == 'STATE':
-					if current_block:
-						state_blocks.append(current_block)
-						current_block = []
-				else:
+					state_blocks.append([])
+				elif state_blocks:
 					try:
 						from_orb = int(parts[0][:-1])
 						to_orb = int(parts[2][:-1])
 						coeff = float(parts[4])
-						current_block.append([from_orb, to_orb, coeff])
+						state_blocks[-1].append([from_orb, to_orb, coeff])
 					except (IndexError, ValueError):
 						continue
 
-			if current_block:
-				state_blocks.append(current_block)
-
+			#Keep the contributions above filter_coeff, but at least the largest one, so that no state is dropped
 			filter_coeff = 0.05
 			state_blocks = [
-				filtered_block
+				[entry for entry in block if abs(entry[2]) > filter_coeff] or sorted(block, key=lambda entry: abs(entry[2]))[-1:]
 				for block in state_blocks
-				if (filtered_block := [entry for entry in block if abs(entry[2]) > filter_coeff])
-			]	
+			]
 			for t in range(states_section_start, tddft_section_end):
 				states.append(calc_output[t].strip().split()) #evtl rausnehmen
 				energies.append(float(calc_output[t].strip().split()[3]))
@@ -221,7 +216,7 @@ def analyzer(filename):
 			print(f'LUMO Energy: {orbitals[lumo_number][2]} Hartree')
 		if jobtype == 'tddft':
 			#print('States: ', states)
-			print(f'Only listing orbital contribution > {filter_coeff}.')
+			print(f'Only listing orbital contributions > {filter_coeff} (at least the largest one per state).')
 			print('State blocks:', state_blocks)
 			print('Energies (eV):', energies)
 			print('Wavelengths (nm):', wavelengths)
