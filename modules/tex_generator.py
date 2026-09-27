@@ -37,7 +37,7 @@ def generate_tex(si_style, data):
 
 	si_out = open(f'{data.output_base}.tex', 'w')
 	si_out.write(r'\documentclass{article}' + '\n')
-	si_out.write(r'\usepackage[a4paper]{geometry}' + '\n')
+	si_out.write(r'\usepackage[a4paper, margin=2.5cm]{geometry}' + '\n')
 	si_out.write(r'\usepackage{multirow}' + '\n')
 	si_out.write(r'\usepackage{longtable}' + '\n')
 	si_out.write('\\begin{document}' + '\n')
@@ -58,11 +58,11 @@ def generate_tex(si_style, data):
 			else:
 				details.append(f'Number of imaginary frequencies = {len(data.imaginary_freqs)}, ' + r'$\nu_{i}$ = ' + f'{', '.join(data.imaginary_freqs)} ' + r'cm$^{-1}$')
 			details += [f'{term} = {energy} Hartree' for term, energy in data.thermochemistry.items()]
-		#The space for the picture spans eight rows
+		#The space for the picture spans two columns and eight rows
 		details += [''] * (8 - len(details))
-		si_out.write(r'\multicolumn{3}{c}{\multirow{8}{*}{}} & \multicolumn{5}{l}{' + details[0] + r'} \\' + '\n')
+		si_out.write(r'\multicolumn{2}{c}{\multirow{8}{*}{}} & \multicolumn{6}{l}{' + details[0] + r'} \\' + '\n')
 		for detail in details[1:]:
-			si_out.write(r'\multicolumn{3}{c}{} & \multicolumn{5}{l}{' + detail + r'} \\' + '\n')
+			si_out.write(r'\multicolumn{2}{c}{} & \multicolumn{6}{l}{' + detail + r'} \\' + '\n')
 
 		if len(data.coords) > 0:
 			coords_header = r'\hline & \multicolumn{3}{c}{\textbf{Cartesian Coordinates (\r{A})}} &  & \multicolumn{3}{c}{\textbf{Cartesian Coordinates (\r{A})}} \\ \cline{2-4} \cline{6-8} \textbf{Atoms} & \textit{\textbf{X}} & \textit{\textbf{Y}} & \multicolumn{1}{c}{\textit{\textbf{Z}}} & \textbf{Atoms} & \textit{\textbf{X}} & \textit{\textbf{Y}} & \textit{\textbf{Z}} \\ \hline'
