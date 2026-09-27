@@ -61,7 +61,9 @@ class TempDirTestCase(unittest.TestCase):
 
 	def modified_fixture(self, fixture_name, new_name, old, new):
 		with open(fixture(fixture_name)) as f:
-			return self.write(new_name, f.read().replace(old, new))
+			text = f.read()
+		self.assertIn(old, text)
+		return self.write(new_name, text.replace(old, new))
 
 
 class OrcaAnalyzerTest(unittest.TestCase):
@@ -117,6 +119,23 @@ class GaussianAnalyzerTest(TempDirTestCase):
 		self.assertEqual(data['basis_set'], 'genecp')
 		gen = self.modified_fixture('gaussian_genecp.out', 'gen.out', 'b3lyp/genecp', 'b3lyp/gen')
 		self.assertEqual(analyze(gaussian_analyzer.analyzer, gen)['basis_set'], 'gen')
+
+	def test_route_over_several_lines(self):
+		#Long routes are wrapped after a fixed number of characters, also within a keyword (here Fr|eq)
+		wrapped = self.modified_fixture('gaussian_freq.out', 'wrapped.out', ' #N B3LYP/6-31G(d) FREQ Geom=Connectivity\n',
+			' #N B3LYP/6-31G(d) SCRF=(PCM,Solvent=Dichloromethane) Geom=Connectivity Fr\n eq\n')
+		self.assertEqual(analyze(gaussian_analyzer.analyzer, wrapped)['jobtype'], 'freq')
+
+	def test_job_type_from_keywords_only(self):
+		#stable=opt is no geometry optimization and cphf=rdfreq no frequency calculation
+		polar = self.modified_fixture('gaussian_freq.out', 'polar.out', ' #N B3LYP/6-31G(d) FREQ Geom=Connectivity\n', ' #N Stable=Opt B3LYP/6-31G(d) Polar CPHF=RdFreq\n')
+		self.assertEqual(analyze(gaussian_analyzer.analyzer, polar)['jobtype'], 'other')
+
+	def test_cis_is_an_excited_state_calculation(self):
+		cis = self.modified_fixture('gaussian_tddft_singlet.out', 'cis.out', 'TD(NStates=20) B3LYP/6-31G(d)', 'CIS(NStates=20)/6-31G(d)')
+		data = analyze(gaussian_analyzer.analyzer, cis)
+		self.assertEqual(data['jobtype'], 'tddft')
+		self.assertEqual(len(data['state_blocks']), 20)
 
 	def test_frequencies_include_the_first_line(self):
 		#The first "Frequencies --" line holds the lowest modes, i.e. the imaginary ones

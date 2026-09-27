@@ -1,4 +1,13 @@
 import os
+import re
+
+def route_keywords(route):
+	#Keyword names of a route section, e.g. '#p opt=(ts,calcfc) freq b3lyp/6-31g(d) stable=opt' -> {'p', 'opt', 'freq', 'b3lyp', '6-31g', 'stable'}
+	previous = None
+	while previous != route:
+		#Remove the options in (nested) parentheses
+		previous, route = route, re.sub(r'\([^()]*\)', '', route)
+	return {keyword.split('=')[0] for keyword in re.split(r'[\s,/]+', route.removeprefix('#')) if keyword}
 
 def orca_style_contribution(from_label, to_label, coeff):
 	#Same format as ORCA: orbitals counted from 0 and weights instead of CI coefficients
@@ -43,38 +52,42 @@ def analyzer(filename):
 	coords = []
 	geo_start_line = None
 	input_geo_start_line = None
-	input_line = None
 	basis_set = 'unknown'
 
-	#Determine input section
+	#Route section: from the first line starting with # up to the next line of dashes (or an empty line).
+	#Long routes are wrapped after a fixed number of characters, also within keywords.
+	route = ''
 	for i in range(len(calc_output)):
-		if '#' in calc_output[i]:
-			if not input_line:
-				input_line = i
+		if calc_output[i].strip().startswith('#'):
+			for route_line in calc_output[i:]:
+				if set(route_line.strip()) in ({'-'}, set()):
+					break
+				route += route_line.rstrip('\n').removeprefix(' ')
+			break
+	route = route.strip().casefold()
+
+	#Determine job type from the keywords (not from parts of them, e.g. stable=opt or cphf=rdfreq)
+	keywords = route_keywords(route)
+	opt_found = 'opt' in keywords
+	freq_found = 'freq' in keywords
+	if keywords & {'td', 'tda', 'cis'}:
+		jobtype = 'tddft'
+	elif opt_found and freq_found:
+		jobtype = 'opt+freq'
+	elif opt_found:
+		jobtype = 'opt'
+	elif freq_found:
+		jobtype = 'freq'
+	else:
+		jobtype = 'other'
 
 	for j, line in enumerate(calc_output):
-
-		#Determine job type
-		jobtype = 'other'
-		opt_found = False
-		route_line = calc_output[input_line].lower()
-
-		if 'opt' in route_line:
-			jobtype = 'opt'
-			opt_found = True
-		if 'freq' in route_line:
-			if opt_found:
-				jobtype = 'opt+freq'
-			else:
-				jobtype = 'freq'
-		if 'td' in route_line:
-			jobtype = 'tddft'
 
 		#Determine basis set (gen/genecp: basis set is defined in the input file)
 		if 'Standard basis:' in line:
 			basis_set = line.split()[2]
 		elif 'General basis read from cards' in line:
-			basis_set = 'genecp' if 'genecp' in route_line else 'gen'
+			basis_set = 'genecp' if 'genecp' in route else 'gen'
 
 		#Determine charge
 		if 'Charge =' in line:
